@@ -25,14 +25,23 @@ alter table categorias
   add column if not exists pieza_base_costo_kg  decimal(12, 2),
   add column if not exists factor_incremento    decimal(6, 4) not null default 1.0;
 
--- Migrar el % de la tabla incrementos → factor (1 + %/100)
-update categorias c
-  set factor_incremento = 1 + (i.porcentaje / 100.0)
-  from incrementos i
-  where i.categoria_id = c.id;
+-- Migrar el % de la tabla incrementos → factor (1 + %/100) y luego eliminarla.
+-- Guardado por existencia: si la tabla ya fue borrada (corrida parcial previa),
+-- este bloque no hace nada y la migración sigue siendo idempotente.
+do $$
+begin
+  if exists (
+    select 1 from information_schema.tables
+    where table_schema = 'public' and table_name = 'incrementos'
+  ) then
+    update categorias c
+      set factor_incremento = 1 + (i.porcentaje / 100.0)
+      from incrementos i
+      where i.categoria_id = c.id;
 
--- Eliminar la tabla incrementos (y su FK a categorias) antes de tocar Pescado
-drop table if exists incrementos cascade;
+    drop table incrementos cascade;
+  end if;
+end $$;
 
 -- =============================================================
 -- 3. QUITAR PESCADO (categoría fuera de alcance)
@@ -356,39 +365,53 @@ alter table compras     enable row level security;
 alter table gastos      enable row level security;
 
 -- Catálogos de config: lectura para todos, escritura solo admin.
+drop policy if exists "lectura publica medios_pago" on medios_pago;
 create policy "lectura publica medios_pago" on medios_pago for select using (true);
+drop policy if exists "admin modifica medios_pago" on medios_pago;
 create policy "admin modifica medios_pago"  on medios_pago for all    using (is_admin());
+drop policy if exists "lectura publica tipos_gasto" on tipos_gasto;
 create policy "lectura publica tipos_gasto" on tipos_gasto for select using (true);
+drop policy if exists "admin modifica tipos_gasto" on tipos_gasto;
 create policy "admin modifica tipos_gasto"  on tipos_gasto for all    using (is_admin());
 
 -- Períodos: admin todo; cajera solo su sucursal.
+drop policy if exists "admin todo periodos" on periodos;
 create policy "admin todo periodos"  on periodos for all
   using (is_admin()) with check (is_admin());
+drop policy if exists "cajera su periodos" on periodos;
 create policy "cajera su periodos"   on periodos for all
   using (sucursal_id = mi_sucursal()) with check (sucursal_id = mi_sucursal());
 
 -- Ventas / compras / gastos: admin todo; cajera solo su sucursal.
+drop policy if exists "admin todo ventas" on ventas;
 create policy "admin todo ventas"   on ventas  for all
   using (is_admin()) with check (is_admin());
+drop policy if exists "cajera su ventas" on ventas;
 create policy "cajera su ventas"    on ventas  for all
   using (sucursal_id = mi_sucursal()) with check (sucursal_id = mi_sucursal());
 
+drop policy if exists "admin todo compras" on compras;
 create policy "admin todo compras"  on compras for all
   using (is_admin()) with check (is_admin());
+drop policy if exists "cajera su compras" on compras;
 create policy "cajera su compras"   on compras for all
   using (sucursal_id = mi_sucursal()) with check (sucursal_id = mi_sucursal());
 
+drop policy if exists "admin todo gastos" on gastos;
 create policy "admin todo gastos"   on gastos  for all
   using (is_admin()) with check (is_admin());
+drop policy if exists "cajera su gastos" on gastos;
 create policy "cajera su gastos"    on gastos  for all
   using (sucursal_id = mi_sucursal()) with check (sucursal_id = mi_sucursal());
 
 -- Pesajes: la cajera puede LEER todas las sucursales (requisito del módulo),
 -- pero solo ESCRIBIR la suya. (La lectura pública ya existe del schema inicial.)
+drop policy if exists "cajera escribe su pesaje" on pesajes;
 create policy "cajera escribe su pesaje" on pesajes for all
   using (is_admin() or sucursal_id = mi_sucursal())
   with check (is_admin() or sucursal_id = mi_sucursal());
 
+drop policy if exists "cajera escribe su pesaje_items" on pesaje_items;
 create policy "cajera escribe su pesaje_items" on pesaje_items for all
   using (exists (select 1 from pesajes p
                  where p.id = pesaje_id
@@ -398,4 +421,5 @@ create policy "cajera escribe su pesaje_items" on pesaje_items for all
                    and (is_admin() or p.sucursal_id = mi_sucursal())));
 
 -- Admin: ver todos los perfiles (para gestión de usuarios en Configuración).
+drop policy if exists "admin ve perfiles" on profiles;
 create policy "admin ve perfiles" on profiles for select using (is_admin());
