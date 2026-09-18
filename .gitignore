@@ -1,0 +1,33 @@
+# ===== Sistema Operativo =====
+.DS_Store
+Thumbs.db
+
+# ===== Archivos temporales de Office (lock de Word/Excel abiertos) =====
+~$*
+
+# ===== Node (solo se usó para generar el Word del análisis) =====
+node_modules/
+package-lock.json
+
+# ===== Supabase =====
+supabase/.temp/
+supabase/.branches/
+.env
+.env.*
+
+# ===== Flutter / Dart (para cuando exista la app) =====
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+.pub-cache/
+.pub/
+*.iml
+.idea/
+.vscode/
+**/doc/api/
+ios/Flutter/.last_build_id
+android/.gradle
+android/local.properties
+*.g.dart.lock
