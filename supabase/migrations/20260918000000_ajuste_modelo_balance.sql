@@ -16,17 +16,8 @@ update sucursales set nombre = 'Don Chacho 3' where orden = 3;
 update sucursales set nombre = 'Don Chacho 4' where orden = 4;
 
 -- =============================================================
--- 2. QUITAR PESCADO (categoría fuera de alcance)
---    Los cortes de Pescado (si hubiera) caen por FK; sus precios
---    caen por ON DELETE CASCADE en precios.corte_id.
--- =============================================================
-delete from cortes
-  where categoria_id in (select id from categorias where nombre = 'Pescado');
-delete from categorias where nombre = 'Pescado';
-
--- =============================================================
--- 3. CATEGORÍAS — pieza base (para rinde) + factor de incremento
---    Reemplaza la tabla `incrementos`.
+-- 2. CATEGORÍAS — columnas nuevas + reemplazo de la tabla `incrementos`
+--    (se hace ANTES de borrar Pescado: incrementos tiene FK a categorias)
 -- =============================================================
 alter table categorias
   add column if not exists pieza_base_nombre   text,
@@ -40,7 +31,17 @@ update categorias c
   from incrementos i
   where i.categoria_id = c.id;
 
+-- Eliminar la tabla incrementos (y su FK a categorias) antes de tocar Pescado
 drop table if exists incrementos cascade;
+
+-- =============================================================
+-- 3. QUITAR PESCADO (categoría fuera de alcance)
+--    Ya sin la FK de incrementos; los cortes de Pescado caen por FK y sus
+--    precios por ON DELETE CASCADE en precios.corte_id.
+-- =============================================================
+delete from cortes
+  where categoria_id in (select id from categorias where nombre = 'Pescado');
+delete from categorias where nombre = 'Pescado';
 
 -- Nombres de pieza base por categoría (kg/$ se completan en Configuración)
 update categorias set pieza_base_nombre = 'Media Res',    pieza_base_kg = 111, pieza_base_costo_kg = 10400
