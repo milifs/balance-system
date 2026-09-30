@@ -1,0 +1,8 @@
+# Mapea automáticamente camelCase (Dart) ↔ snake_case (columnas Supabase),
+# así los modelos no necesitan @JsonKey en cada campo.
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          field_rename: snake
