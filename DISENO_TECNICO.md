@@ -176,13 +176,15 @@ pct_rinde         = resultado_rinde / costo_pieza_base
 | Tabla | Cajera | Admin |
 |---|---|---|
 | categorias, cortes, precios, medios_pago, tipos_gasto, sucursales | **lee** | lee + escribe |
-| ventas, compras, gastos | lee/escribe **solo su `sucursal_id`** | todo |
-| periodos | lee/escribe su sucursal | todo |
-| pesajes, pesaje_items | **lee todas** (requisito del módulo), escribe su sucursal | todo |
+| ventas, compras, gastos | lee/escribe **todas las sucursales** | todo |
+| periodos | lee/escribe **todas las sucursales** | todo |
+| pesajes, pesaje_items | lee/escribe **todas las sucursales** | todo |
 | balances (vistas/RPC), historial | **sin acceso** | acceso total |
 | profiles | ve/edita el propio | ve todos |
 
-Helper `is_admin()` ya existe. Se agrega `mi_sucursal()` → devuelve `profiles.sucursal_id` del usuario autenticado, para las policies de cajera.
+Helper `is_admin()` ya existe. También existe `mi_sucursal()` → devuelve `profiles.sucursal_id` del usuario autenticado; hoy **no se usa para restringir** (ver más abajo) pero queda disponible como sucursal por defecto en la UI.
+
+> **Cambio de alcance (2026-09-30, migración `20260930000000_cajera_todas_sucursales.sql`):** por ahora una sola persona hace toda la operativa (pesajes y ventas/compras/gastos) de las 4 sucursales, así que la cajera **carga todas las sucursales** en Carga y Pesaje. Se soltaron los filtros `sucursal_id = mi_sucursal()`. La cajera sigue **sin** acceso a Balance, Historial ni Configuración. Si en el futuro cada sucursal tiene su cajera, se reintroduce el filtro por `mi_sucursal()`.
 
 ---
 

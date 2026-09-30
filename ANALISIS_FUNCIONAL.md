@@ -28,7 +28,7 @@ Cadena de carnicerías **Don Chacho** con **4 sucursales**. Hoy el balance se ll
 | Rol | Acceso |
 |---|---|
 | **Administrador** | Todos los módulos: Carga, Lista de Precios + Rinde, Pesaje, Balance, Historial de Balance y Configuración. Ve las 4 sucursales. |
-| **Cajera** | Solo **3 módulos**: Carga, Lista de Precios + Rinde y Pesaje. **No** ve Balance, Historial ni Configuración. Opera únicamente sobre su sucursal asignada. |
+| **Cajera** | Solo **3 módulos**: Carga, Lista de Precios + Rinde y Pesaje. **No** ve Balance, Historial ni Configuración. Opera sobre **todas las sucursales** (hoy una sola persona hace la carga y el pesaje de las 4). |
 
 ---
 
@@ -54,7 +54,7 @@ Permite cargar los datos económicos de un período por sucursal. Todos los mont
 - **Compras ($):** cada compra a proveedor se carga por **tipo** (Carne, Cerdo, Pollo) con monto y fecha.
 - **Gastos ($):** cada gasto se carga por **tipo** (luz, agua, internet, etc.) con monto y fecha.
 
-> La cajera carga los datos de **su** sucursal. El administrador puede cargar los de cualquiera.
+> La cajera carga los datos de **todas las sucursales** (hoy una sola persona hace la operativa de las 4). En el módulo hay un **selector de sucursal**. El administrador también carga cualquiera.
 
 ### 4.2 Módulo de Lista de Precios + Rinde
 
@@ -104,7 +104,7 @@ Registra el stock físico de cada sucursal y lo valoriza. Se hace **dentro de un
 
 **Contenido de la pantalla:**
 
-- **Layout:** una **pestaña por sucursal** (Don Chacho 1..4); dentro, tabs por categoría (Carne | Cerdo | Pollo). La **cajera puede ver todas las sucursales**.
+- **Layout:** una **pestaña por sucursal** (Don Chacho 1..4); dentro, tabs por categoría (Carne | Cerdo | Pollo). La **cajera puede ver y cargar todas las sucursales**.
 - Cada corte × sucursal admite **varios campos de peso** (ej. cámara de frío + batea); botón para **agregar peso**. `Total kg del corte = Σ pesos`.
 - **Precio:** se toma automáticamente de la lista (`$ Actual`), no editable acá.
   - Los **cortes individuales** se valorizan a **precio de venta** de la lista.
