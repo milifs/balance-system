@@ -41,54 +41,65 @@ class VentasSection extends ConsumerWidget {
                     color: AppColors.grisTexto)),
           ),
         ),
-        if (editable)
-          activos.isEmpty
-              ? const Padding(
-                  padding: EdgeInsets.fromLTRB(20, 4, 20, 8),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'No hay medios de pago activos. Configurá al menos uno '
-                      'para cargar ventas.',
-                      style: TextStyle(color: AppColors.grisTexto),
-                    ),
-                  ),
-                )
-              : _VentaForm(periodo: periodo, medios: activos),
         Expanded(
-          child: cargaListaAsync<Venta>(
-            value: ventasAsync,
-            builder: (items) => ListView.separated(
-              itemCount: items.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (_, i) {
-                final v = items[i];
-                final medio = medios[v.medioPagoId];
-                final bruto = v.monto;
-                final ret = medio?.retencionPct ?? 0;
-                final neto = bruto * (1 - ret / 100);
-                return ListTile(
-                  leading: const Icon(Icons.point_of_sale, color: AppColors.rojo),
-                  title: Text(medio?.nombre ?? 'Medio desconocido'),
-                  subtitle: Text(
-                    '${Fmt.fecha(v.fecha)}'
-                    '${ret > 0 ? ' · retención ${Fmt.pct(ret)} → neto ${Fmt.moneda(neto)}' : ''}',
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(Fmt.moneda(bruto),
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
-                      if (editable)
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          tooltip: 'Eliminar',
-                          onPressed: () => _eliminar(context, ref, v, medio),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                if (editable)
+                  activos.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.fromLTRB(20, 4, 20, 8),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'No hay medios de pago activos. Configurá al '
+                              'menos uno para cargar ventas.',
+                              style: TextStyle(color: AppColors.grisTexto),
+                            ),
+                          ),
+                        )
+                      : _VentaForm(periodo: periodo, medios: activos),
+                cargaListaAsync<Venta>(
+                  value: ventasAsync,
+                  builder: (items) => ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: items.length,
+                    separatorBuilder: (_, _) => const Divider(height: 1),
+                    itemBuilder: (_, i) {
+                      final v = items[i];
+                      final medio = medios[v.medioPagoId];
+                      final bruto = v.monto;
+                      final ret = medio?.retencionPct ?? 0;
+                      final neto = bruto * (1 - ret / 100);
+                      return ListTile(
+                        leading: const Icon(Icons.point_of_sale,
+                            color: AppColors.rojo),
+                        title: Text(medio?.nombre ?? 'Medio desconocido'),
+                        subtitle: Text(
+                          '${Fmt.fecha(v.fecha)}'
+                          '${ret > 0 ? ' · retención ${Fmt.pct(ret)} → neto ${Fmt.moneda(neto)}' : ''}',
                         ),
-                    ],
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(Fmt.moneda(bruto),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600)),
+                            if (editable)
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline),
+                                tooltip: 'Eliminar',
+                                onPressed: () =>
+                                    _eliminar(context, ref, v, medio),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
           ),
         ),

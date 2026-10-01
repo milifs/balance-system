@@ -34,38 +34,47 @@ class ComprasSection extends ConsumerWidget {
                     color: AppColors.grisTexto)),
           ),
         ),
-        if (editable) _CompraForm(periodo: periodo),
         Expanded(
-          child: cargaListaAsync<Compra>(
-            value: comprasAsync,
-            builder: (items) => ListView.separated(
-              itemCount: items.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (_, i) {
-                final c = items[i];
-                final prov = (c.proveedor ?? '').trim();
-                return ListTile(
-                  leading:
-                      const Icon(Icons.local_shipping, color: AppColors.rojo),
-                  title: Text(c.tipoCompra.label),
-                  subtitle: Text(
-                    '${Fmt.fecha(c.fecha)}${prov.isEmpty ? '' : ' · $prov'}',
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(Fmt.moneda(c.monto),
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
-                      if (editable)
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          tooltip: 'Eliminar',
-                          onPressed: () => _eliminar(context, ref, c),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                if (editable) _CompraForm(periodo: periodo),
+                cargaListaAsync<Compra>(
+                  value: comprasAsync,
+                  builder: (items) => ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: items.length,
+                    separatorBuilder: (_, _) => const Divider(height: 1),
+                    itemBuilder: (_, i) {
+                      final c = items[i];
+                      final prov = (c.proveedor ?? '').trim();
+                      return ListTile(
+                        leading: const Icon(Icons.local_shipping,
+                            color: AppColors.rojo),
+                        title: Text(c.tipoCompra.label),
+                        subtitle: Text(
+                          '${Fmt.fecha(c.fecha)}${prov.isEmpty ? '' : ' · $prov'}',
                         ),
-                    ],
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(Fmt.moneda(c.monto),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600)),
+                            if (editable)
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline),
+                                tooltip: 'Eliminar',
+                                onPressed: () => _eliminar(context, ref, c),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
           ),
         ),

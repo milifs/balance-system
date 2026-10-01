@@ -42,49 +42,59 @@ class GastosSection extends ConsumerWidget {
                     color: AppColors.grisTexto)),
           ),
         ),
-        if (editable)
-          activos.isEmpty
-              ? const Padding(
-                  padding: EdgeInsets.fromLTRB(20, 4, 20, 8),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'No hay tipos de gasto activos. Configurá al menos uno '
-                      'para cargar gastos.',
-                      style: TextStyle(color: AppColors.grisTexto),
-                    ),
-                  ),
-                )
-              : _GastoForm(periodo: periodo, tipos: activos),
         Expanded(
-          child: cargaListaAsync<Gasto>(
-            value: gastosAsync,
-            builder: (items) => ListView.separated(
-              itemCount: items.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (_, i) {
-                final g = items[i];
-                final tipo = tipos[g.tipoGastoId];
-                return ListTile(
-                  leading:
-                      const Icon(Icons.receipt_long, color: AppColors.rojo),
-                  title: Text(tipo?.nombre ?? 'Gasto'),
-                  subtitle: Text(Fmt.fecha(g.fecha)),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(Fmt.moneda(g.monto),
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
-                      if (editable)
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          tooltip: 'Eliminar',
-                          onPressed: () => _eliminar(context, ref, g, tipo),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                if (editable)
+                  activos.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.fromLTRB(20, 4, 20, 8),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'No hay tipos de gasto activos. Configurá al '
+                              'menos uno para cargar gastos.',
+                              style: TextStyle(color: AppColors.grisTexto),
+                            ),
+                          ),
+                        )
+                      : _GastoForm(periodo: periodo, tipos: activos),
+                cargaListaAsync<Gasto>(
+                  value: gastosAsync,
+                  builder: (items) => ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: items.length,
+                    separatorBuilder: (_, _) => const Divider(height: 1),
+                    itemBuilder: (_, i) {
+                      final g = items[i];
+                      final tipo = tipos[g.tipoGastoId];
+                      return ListTile(
+                        leading: const Icon(Icons.receipt_long,
+                            color: AppColors.rojo),
+                        title: Text(tipo?.nombre ?? 'Gasto'),
+                        subtitle: Text(Fmt.fecha(g.fecha)),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(Fmt.moneda(g.monto),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600)),
+                            if (editable)
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline),
+                                tooltip: 'Eliminar',
+                                onPressed: () =>
+                                    _eliminar(context, ref, g, tipo),
+                              ),
+                          ],
                         ),
-                    ],
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
           ),
         ),
