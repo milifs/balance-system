@@ -27,6 +27,9 @@ build/
 .idea/
 .vscode/
 **/doc/api/
+
+# ===== Claude Code (config local del preview + datos de sesión) =====
+.claude/
 ios/Flutter/.last_build_id
 android/.gradle
 android/local.properties

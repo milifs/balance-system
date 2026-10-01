@@ -1,0 +1,13 @@
+# Artefactos locales pesados que no hacen falta para el build en Vercel.
+node_modules
+package-lock.json
+*.xlsx
+*.docx
+Balance System/
+supabase/
+build_docx.js
+
+# Flutter local (Vercel reconstruye desde cero)
+app/build/
+app/.dart_tool/
+flutter/

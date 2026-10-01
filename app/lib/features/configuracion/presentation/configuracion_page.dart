@@ -46,10 +46,11 @@ class _ConfiguracionPageState extends State<ConfiguracionPage> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(
-          width: 240,
+        Material(
           color: Colors.white,
-          child: ListView(
+          child: SizedBox(
+            width: 240,
+            child: ListView(
             padding: const EdgeInsets.symmetric(vertical: 12),
             children: [
               const Padding(
@@ -72,6 +73,7 @@ class _ConfiguracionPageState extends State<ConfiguracionPage> {
                   onTap: () => setState(() => _seccion = i),
                 ),
             ],
+          ),
           ),
         ),
         const VerticalDivider(width: 1, color: Color(0x11000000)),

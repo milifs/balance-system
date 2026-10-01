@@ -31,8 +31,11 @@ class AppScaffold extends ConsumerWidget {
           children: [
             const Text('Don Chacho', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(width: 12),
-            Text('· $tituloModulo',
-                style: const TextStyle(fontWeight: FontWeight.w400)),
+            Flexible(
+              child: Text('· $tituloModulo',
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w400)),
+            ),
           ],
         ),
         actions: [
