@@ -485,7 +485,7 @@ class _AccionCierreState extends ConsumerState<_AccionCierre> {
     final p = widget.periodo;
     final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(cerrar ? 'Cerrar período' : 'Reabrir período'),
         content: Text(cerrar
             ? 'Al cerrar, el período pasa a solo lectura y queda en el '
@@ -493,14 +493,14 @@ class _AccionCierreState extends ConsumerState<_AccionCierre> {
             : 'El período volverá a ser editable. ¿Reabrir?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () => Navigator.of(dialogContext).pop(false),
             child: const Text('Cancelar'),
           ),
           FilledButton(
             style: cerrar
                 ? null
                 : FilledButton.styleFrom(backgroundColor: AppColors.grisTexto),
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
             child: Text(cerrar ? 'Cerrar período' : 'Reabrir'),
           ),
         ],

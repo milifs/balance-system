@@ -74,17 +74,17 @@ class TotalFooter extends StatelessWidget {
 Future<bool> confirmarBorrado(BuildContext context, String descripcion) async {
   final ok = await showDialog<bool>(
     context: context,
-    builder: (_) => AlertDialog(
+    builder: (dialogContext) => AlertDialog(
       title: const Text('Eliminar registro'),
       content: Text('¿Eliminar $descripcion? Esta acción no se puede deshacer.'),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
+          onPressed: () => Navigator.of(dialogContext).pop(false),
           child: const Text('Cancelar'),
         ),
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: AppColors.rojoNegativo),
-          onPressed: () => Navigator.of(context).pop(true),
+          onPressed: () => Navigator.of(dialogContext).pop(true),
           child: const Text('Eliminar'),
         ),
       ],
