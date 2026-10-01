@@ -113,7 +113,9 @@ class GastosSection extends ConsumerWidget {
   }
 }
 
-/// Cuadro de carga de gasto, siempre visible sobre la lista.
+/// Cuadro de carga de gastos, siempre visible sobre la lista: una fila fija
+/// por cada tipo de gasto activo (orden alfabético, sin combo). El usuario
+/// solo tipea los montos y guarda todo junto con una fecha compartida.
 class _GastoForm extends ConsumerStatefulWidget {
   const _GastoForm({required this.periodo, required this.tipos});
 
@@ -126,9 +128,9 @@ class _GastoForm extends ConsumerStatefulWidget {
 
 class _GastoFormState extends ConsumerState<_GastoForm> {
   final _formKey = GlobalKey<FormState>();
-  final _monto = TextEditingController();
   late DateTime _fecha;
-  String? _tipoGastoId;
+  Map<String, TextEditingController> _montos = {};
+  List<TipoGasto> _ordenados = [];
   bool _guardando = false;
 
   @override
@@ -136,12 +138,33 @@ class _GastoFormState extends ConsumerState<_GastoForm> {
     super.initState();
     final hoy = DateTime.now();
     _fecha = hoy.isAfter(widget.periodo.fechaFin) ? widget.periodo.fechaFin : hoy;
-    _tipoGastoId = widget.tipos.first.id;
+    _ordenar();
+  }
+
+  @override
+  void didUpdateWidget(_GastoForm old) {
+    super.didUpdateWidget(old);
+    final idsViejos = old.tipos.map((t) => t.id).toSet();
+    final idsNuevos = widget.tipos.map((t) => t.id).toSet();
+    if (idsViejos != idsNuevos) _ordenar();
+  }
+
+  void _ordenar() {
+    for (final c in _montos.values) {
+      c.dispose();
+    }
+    _ordenados = [...widget.tipos]
+      ..sort((a, b) => a.nombre.toLowerCase().compareTo(b.nombre.toLowerCase()));
+    _montos = {
+      for (final t in _ordenados) t.id: TextEditingController(),
+    };
   }
 
   @override
   void dispose() {
-    _monto.dispose();
+    for (final c in _montos.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -157,20 +180,31 @@ class _GastoFormState extends ConsumerState<_GastoForm> {
 
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
+    final montos = <String, double>{
+      for (final e in _montos.entries)
+        if (parseMonto(e.value.text) != null && parseMonto(e.value.text)! > 0)
+          e.key: parseMonto(e.value.text)!,
+    };
+    if (montos.isEmpty) {
+      mostrarMensaje(context, 'Ingresá al menos un monto.', error: true);
+      return;
+    }
     setState(() => _guardando = true);
     try {
-      await ref.read(cargaRepositoryProvider).agregarGasto(
+      await ref.read(cargaRepositoryProvider).agregarGastos(
             periodoId: widget.periodo.id,
             sucursalId: widget.periodo.sucursalId,
             fecha: _fecha,
-            tipoGastoId: _tipoGastoId!,
-            monto: parseMonto(_monto.text)!,
+            montosPorTipoGasto: montos,
           );
       ref.invalidate(gastosProvider(widget.periodo.id));
       if (mounted) {
-        _monto.clear();
+        for (final c in _montos.values) {
+          c.clear();
+        }
         setState(() => _guardando = false);
-        mostrarMensaje(context, 'Gasto agregado');
+        mostrarMensaje(context,
+            montos.length == 1 ? 'Gasto agregado' : '${montos.length} gastos agregados');
       }
     } catch (e) {
       if (mounted) {
@@ -182,46 +216,16 @@ class _GastoFormState extends ConsumerState<_GastoForm> {
 
   @override
   Widget build(BuildContext context) {
-    final existe = widget.tipos.any((t) => t.id == _tipoGastoId);
-    final tipoSel = existe ? _tipoGastoId : widget.tipos.first.id;
-    return CargaFormPanel(
-      titulo: 'Agregar gasto',
+    return CargaGridPanel(
+      titulo: 'Agregar gastos',
       formKey: _formKey,
+      fecha: _fecha,
+      onFecha: _elegirFecha,
       guardando: _guardando,
       onGuardar: _guardar,
-      campos: [
-        SizedBox(
-          width: 220,
-          child: DropdownButtonFormField<String>(
-            initialValue: tipoSel,
-            isExpanded: true,
-            decoration: const InputDecoration(
-                labelText: 'Tipo de gasto', isDense: true),
-            items: [
-              for (final t in widget.tipos)
-                DropdownMenuItem(value: t.id, child: Text(t.nombre)),
-            ],
-            onChanged: (v) => setState(() => _tipoGastoId = v),
-            validator: (v) => v == null ? 'Elegí un tipo' : null,
-          ),
-        ),
-        SizedBox(
-          width: 160,
-          child: TextFormField(
-            controller: _monto,
-            decoration: const InputDecoration(
-                labelText: 'Monto', prefixText: r'$ ', isDense: true),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            onFieldSubmitted: (_) => _guardar(),
-            validator: (v) {
-              final n = parseMonto(v ?? '');
-              if (n == null) return 'Monto inválido';
-              if (n < 0) return 'No puede ser negativo';
-              return null;
-            },
-          ),
-        ),
-        FechaField(fecha: _fecha, onTap: _elegirFecha),
+      filas: [
+        for (final t in _ordenados)
+          CargaGridRow(etiqueta: t.nombre, controller: _montos[t.id]!),
       ],
     );
   }

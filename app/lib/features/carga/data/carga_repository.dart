@@ -5,6 +5,16 @@ import '../../../core/models/gasto.dart';
 import '../../../core/models/periodo.dart';
 import '../../../core/models/venta.dart';
 
+/// Una fila del "cuadro" de compras: tipo de carne fijo + monto + proveedor
+/// opcional. Se usa para cargar varias filas de una sola vez.
+class FilaCompra {
+  const FilaCompra({required this.tipo, required this.monto, this.proveedor});
+
+  final TipoCompra tipo;
+  final double monto;
+  final String? proveedor;
+}
+
 /// Acceso a los datos del Módulo de Carga: períodos y los registros
 /// individuales de ventas, compras y gastos.
 ///
@@ -72,20 +82,27 @@ class CargaRepository {
     return rows.map(Venta.fromJson).toList();
   }
 
-  Future<void> agregarVenta({
+  /// Carga en un solo insert los montos no vacíos del "cuadro" de ventas
+  /// (una fila fija por medio de pago, sin combo). `montosPorMedioPago`
+  /// mapea `medio_pago_id -> monto`.
+  Future<void> agregarVentas({
     required String periodoId,
     required String sucursalId,
     required DateTime fecha,
-    required String medioPagoId,
-    required double monto,
+    required Map<String, double> montosPorMedioPago,
   }) async {
-    await _db.from('ventas').insert({
-      'periodo_id': periodoId,
-      'sucursal_id': sucursalId,
-      'fecha': _fecha(fecha),
-      'medio_pago_id': medioPagoId,
-      'monto': monto,
-    });
+    if (montosPorMedioPago.isEmpty) return;
+    final f = _fecha(fecha);
+    await _db.from('ventas').insert([
+      for (final e in montosPorMedioPago.entries)
+        {
+          'periodo_id': periodoId,
+          'sucursal_id': sucursalId,
+          'fecha': f,
+          'medio_pago_id': e.key,
+          'monto': e.value,
+        },
+    ]);
   }
 
   Future<void> eliminarVenta(String id) async {
@@ -103,22 +120,27 @@ class CargaRepository {
     return rows.map(Compra.fromJson).toList();
   }
 
-  Future<void> agregarCompra({
+  /// Carga en un solo insert las filas no vacías del "cuadro" de compras
+  /// (una fila fija por tipo de carne, sin combo).
+  Future<void> agregarCompras({
     required String periodoId,
     required String sucursalId,
     required DateTime fecha,
-    required TipoCompra tipoCompra,
-    required double monto,
-    String? proveedor,
+    required List<FilaCompra> filas,
   }) async {
-    await _db.from('compras').insert({
-      'periodo_id': periodoId,
-      'sucursal_id': sucursalId,
-      'fecha': _fecha(fecha),
-      'tipo_compra': tipoCompra.label,
-      'monto': monto,
-      'proveedor': proveedor,
-    });
+    if (filas.isEmpty) return;
+    final f = _fecha(fecha);
+    await _db.from('compras').insert([
+      for (final r in filas)
+        {
+          'periodo_id': periodoId,
+          'sucursal_id': sucursalId,
+          'fecha': f,
+          'tipo_compra': r.tipo.label,
+          'monto': r.monto,
+          'proveedor': r.proveedor,
+        },
+    ]);
   }
 
   Future<void> eliminarCompra(String id) async {
@@ -136,20 +158,27 @@ class CargaRepository {
     return rows.map(Gasto.fromJson).toList();
   }
 
-  Future<void> agregarGasto({
+  /// Carga en un solo insert los montos no vacíos del "cuadro" de gastos
+  /// (una fila fija por tipo de gasto, sin combo). `montosPorTipoGasto`
+  /// mapea `tipo_gasto_id -> monto`.
+  Future<void> agregarGastos({
     required String periodoId,
     required String sucursalId,
     required DateTime fecha,
-    required String tipoGastoId,
-    required double monto,
+    required Map<String, double> montosPorTipoGasto,
   }) async {
-    await _db.from('gastos').insert({
-      'periodo_id': periodoId,
-      'sucursal_id': sucursalId,
-      'fecha': _fecha(fecha),
-      'tipo_gasto_id': tipoGastoId,
-      'monto': monto,
-    });
+    if (montosPorTipoGasto.isEmpty) return;
+    final f = _fecha(fecha);
+    await _db.from('gastos').insert([
+      for (final e in montosPorTipoGasto.entries)
+        {
+          'periodo_id': periodoId,
+          'sucursal_id': sucursalId,
+          'fecha': f,
+          'tipo_gasto_id': e.key,
+          'monto': e.value,
+        },
+    ]);
   }
 
   Future<void> eliminarGasto(String id) async {

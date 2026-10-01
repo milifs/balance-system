@@ -6,6 +6,7 @@ import '../../../../core/models/compra.dart';
 import '../../../../core/models/periodo.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../application/carga_providers.dart';
+import '../../data/carga_repository.dart';
 import '../widgets/carga_ui.dart';
 
 /// Compras a proveedores del período.
@@ -93,7 +94,10 @@ class ComprasSection extends ConsumerWidget {
   }
 }
 
-/// Cuadro de carga de compra, siempre visible sobre la lista.
+/// Cuadro de carga de compras, siempre visible sobre la lista: una fila fija
+/// por cada tipo de carne (orden alfabético: Carne, Cerdo, Pollo — sin
+/// combo). El usuario tipea el monto (y opcionalmente el proveedor) y
+/// guarda todo junto con una fecha compartida.
 class _CompraForm extends ConsumerStatefulWidget {
   const _CompraForm({required this.periodo});
 
@@ -105,11 +109,18 @@ class _CompraForm extends ConsumerStatefulWidget {
 
 class _CompraFormState extends ConsumerState<_CompraForm> {
   final _formKey = GlobalKey<FormState>();
-  final _monto = TextEditingController();
-  final _proveedor = TextEditingController();
   late DateTime _fecha;
-  TipoCompra _tipo = TipoCompra.carne;
   bool _guardando = false;
+
+  static final _tipos = [...TipoCompra.values]
+    ..sort((a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
+
+  final Map<TipoCompra, TextEditingController> _montos = {
+    for (final t in _tipos) t: TextEditingController(),
+  };
+  final Map<TipoCompra, TextEditingController> _proveedores = {
+    for (final t in _tipos) t: TextEditingController(),
+  };
 
   @override
   void initState() {
@@ -120,8 +131,12 @@ class _CompraFormState extends ConsumerState<_CompraForm> {
 
   @override
   void dispose() {
-    _monto.dispose();
-    _proveedor.dispose();
+    for (final c in _montos.values) {
+      c.dispose();
+    }
+    for (final c in _proveedores.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -137,23 +152,40 @@ class _CompraFormState extends ConsumerState<_CompraForm> {
 
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
+    final filas = <FilaCompra>[
+      for (final t in _tipos)
+        if (parseMonto(_montos[t]!.text) != null && parseMonto(_montos[t]!.text)! > 0)
+          FilaCompra(
+            tipo: t,
+            monto: parseMonto(_montos[t]!.text)!,
+            proveedor: _proveedores[t]!.text.trim().isEmpty
+                ? null
+                : _proveedores[t]!.text.trim(),
+          ),
+    ];
+    if (filas.isEmpty) {
+      mostrarMensaje(context, 'Ingresá al menos un monto.', error: true);
+      return;
+    }
     setState(() => _guardando = true);
     try {
-      final prov = _proveedor.text.trim();
-      await ref.read(cargaRepositoryProvider).agregarCompra(
+      await ref.read(cargaRepositoryProvider).agregarCompras(
             periodoId: widget.periodo.id,
             sucursalId: widget.periodo.sucursalId,
             fecha: _fecha,
-            tipoCompra: _tipo,
-            monto: parseMonto(_monto.text)!,
-            proveedor: prov.isEmpty ? null : prov,
+            filas: filas,
           );
       ref.invalidate(comprasProvider(widget.periodo.id));
       if (mounted) {
-        _monto.clear();
-        _proveedor.clear();
+        for (final c in _montos.values) {
+          c.clear();
+        }
+        for (final c in _proveedores.values) {
+          c.clear();
+        }
         setState(() => _guardando = false);
-        mostrarMensaje(context, 'Compra agregada');
+        mostrarMensaje(context,
+            filas.length == 1 ? 'Compra agregada' : '${filas.length} compras agregadas');
       }
     } catch (e) {
       if (mounted) {
@@ -165,51 +197,24 @@ class _CompraFormState extends ConsumerState<_CompraForm> {
 
   @override
   Widget build(BuildContext context) {
-    return CargaFormPanel(
-      titulo: 'Agregar compra',
+    return CargaGridPanel(
+      titulo: 'Agregar compras',
       formKey: _formKey,
+      fecha: _fecha,
+      onFecha: _elegirFecha,
       guardando: _guardando,
       onGuardar: _guardar,
-      campos: [
-        SizedBox(
-          width: 180,
-          child: DropdownButtonFormField<TipoCompra>(
-            initialValue: _tipo,
-            isExpanded: true,
-            decoration: const InputDecoration(
-                labelText: 'Tipo de compra', isDense: true),
-            items: [
-              for (final t in TipoCompra.values)
-                DropdownMenuItem(value: t, child: Text(t.label)),
-            ],
-            onChanged: (v) => setState(() => _tipo = v ?? _tipo),
+      filas: [
+        for (final t in _tipos)
+          CargaGridRow(
+            etiqueta: t.label,
+            controller: _montos[t]!,
+            extra: TextFormField(
+              controller: _proveedores[t]!,
+              decoration: const InputDecoration(
+                  labelText: 'Proveedor (opcional)', isDense: true),
+            ),
           ),
-        ),
-        SizedBox(
-          width: 160,
-          child: TextFormField(
-            controller: _monto,
-            decoration: const InputDecoration(
-                labelText: 'Monto', prefixText: r'$ ', isDense: true),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            validator: (v) {
-              final n = parseMonto(v ?? '');
-              if (n == null) return 'Monto inválido';
-              if (n < 0) return 'No puede ser negativo';
-              return null;
-            },
-          ),
-        ),
-        SizedBox(
-          width: 200,
-          child: TextFormField(
-            controller: _proveedor,
-            decoration: const InputDecoration(
-                labelText: 'Proveedor (opcional)', isDense: true),
-            onFieldSubmitted: (_) => _guardar(),
-          ),
-        ),
-        FechaField(fecha: _fecha, onTap: _elegirFecha),
       ],
     );
   }

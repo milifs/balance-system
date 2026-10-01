@@ -191,6 +191,143 @@ class CargaFormPanel extends StatelessWidget {
   }
 }
 
+/// Cuadro siempre visible con una fila fija por cada medio de pago / tipo de
+/// compra / tipo de gasto (sin combo): el usuario solo tipea el monto al
+/// lado de la etiqueta que ya está precargada, en el mismo orden siempre
+/// (alfabético). Una fecha compartida arriba y un botón "Guardar" que crea
+/// un registro por cada fila con monto.
+class CargaGridPanel extends StatelessWidget {
+  const CargaGridPanel({
+    super.key,
+    required this.titulo,
+    required this.formKey,
+    required this.fecha,
+    required this.onFecha,
+    required this.filas,
+    required this.onGuardar,
+    required this.guardando,
+  });
+
+  final String titulo;
+  final GlobalKey<FormState> formKey;
+  final DateTime fecha;
+  final VoidCallback onFecha;
+  final List<Widget> filas;
+  final VoidCallback onGuardar;
+  final bool guardando;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      decoration: BoxDecoration(
+        color: AppColors.crema,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0x22000000)),
+      ),
+      child: Form(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(titulo,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.grisTexto)),
+                const Spacer(),
+                FechaField(fecha: fecha, onTap: onFecha, width: 150),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...filas,
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton.icon(
+                onPressed: guardando ? null : onGuardar,
+                icon: guardando
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.save_outlined, size: 18),
+                label: const Text('Guardar'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Fila de `CargaGridPanel`: etiqueta fija a la izquierda + campo de monto a
+/// la derecha, con un campo extra opcional (ej. proveedor en compras).
+class CargaGridRow extends StatelessWidget {
+  const CargaGridRow({
+    super.key,
+    required this.etiqueta,
+    required this.controller,
+    this.subtitulo,
+    this.extra,
+  });
+
+  final String etiqueta;
+  final TextEditingController controller;
+  final String? subtitulo;
+  final Widget? extra;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(etiqueta, style: const TextStyle(fontWeight: FontWeight.w500)),
+                if (subtitulo != null)
+                  Text(subtitulo!,
+                      style: const TextStyle(
+                          fontSize: 11, color: AppColors.grisTexto)),
+              ],
+            ),
+          ),
+          SizedBox(
+            width: 160,
+            child: TextFormField(
+              controller: controller,
+              textAlign: TextAlign.right,
+              decoration: const InputDecoration(
+                  prefixText: r'$ ', isDense: true, hintText: '0'),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return null;
+                final n = parseMonto(v);
+                if (n == null) return 'Monto inválido';
+                if (n < 0) return 'No puede ser negativo';
+                return null;
+              },
+            ),
+          ),
+          if (extra != null) ...[
+            const SizedBox(width: 12),
+            SizedBox(width: 180, child: extra!),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 /// Parseo de montos aceptando formato es_AR ("1.234,56") o US ("1234.56").
 double? parseMonto(String raw) {
   var s = raw.trim();

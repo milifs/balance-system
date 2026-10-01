@@ -117,7 +117,9 @@ class VentasSection extends ConsumerWidget {
   }
 }
 
-/// Cuadro de carga de venta, siempre visible sobre la lista.
+/// Cuadro de carga de ventas, siempre visible sobre la lista: una fila fija
+/// por cada medio de pago activo (orden alfabético, sin combo). El usuario
+/// solo tipea los montos y guarda todo junto con una fecha compartida.
 class _VentaForm extends ConsumerStatefulWidget {
   const _VentaForm({required this.periodo, required this.medios});
 
@@ -130,24 +132,47 @@ class _VentaForm extends ConsumerStatefulWidget {
 
 class _VentaFormState extends ConsumerState<_VentaForm> {
   final _formKey = GlobalKey<FormState>();
-  final _monto = TextEditingController();
   late DateTime _fecha;
-  String? _medioPagoId;
-  bool _guardando = false;
+  Map<String, TextEditingController> _montos = {};
+  List<MedioPago> _ordenados = [];
 
   @override
   void initState() {
     super.initState();
     final hoy = DateTime.now();
     _fecha = hoy.isAfter(widget.periodo.fechaFin) ? widget.periodo.fechaFin : hoy;
-    _medioPagoId = widget.medios.first.id;
+    _ordenar();
+  }
+
+  @override
+  void didUpdateWidget(_VentaForm old) {
+    super.didUpdateWidget(old);
+    final idsViejos = old.medios.map((m) => m.id).toSet();
+    final idsNuevos = widget.medios.map((m) => m.id).toSet();
+    if (idsViejos != idsNuevos) _ordenar();
+  }
+
+  void _ordenar() {
+    for (final c in _montos.values) {
+      c.dispose();
+    }
+    _ordenados = [...widget.medios]
+      ..sort((a, b) =>
+          a.nombre.toLowerCase().compareTo(b.nombre.toLowerCase()));
+    _montos = {
+      for (final m in _ordenados) m.id: TextEditingController(),
+    };
   }
 
   @override
   void dispose() {
-    _monto.dispose();
+    for (final c in _montos.values) {
+      c.dispose();
+    }
     super.dispose();
   }
+
+  bool _guardando = false;
 
   Future<void> _elegirFecha() async {
     final picked = await showDatePicker(
@@ -161,20 +186,31 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
 
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
+    final montos = <String, double>{
+      for (final e in _montos.entries)
+        if (parseMonto(e.value.text) != null && parseMonto(e.value.text)! > 0)
+          e.key: parseMonto(e.value.text)!,
+    };
+    if (montos.isEmpty) {
+      mostrarMensaje(context, 'Ingresá al menos un monto.', error: true);
+      return;
+    }
     setState(() => _guardando = true);
     try {
-      await ref.read(cargaRepositoryProvider).agregarVenta(
+      await ref.read(cargaRepositoryProvider).agregarVentas(
             periodoId: widget.periodo.id,
             sucursalId: widget.periodo.sucursalId,
             fecha: _fecha,
-            medioPagoId: _medioPagoId!,
-            monto: parseMonto(_monto.text)!,
+            montosPorMedioPago: montos,
           );
       ref.invalidate(ventasProvider(widget.periodo.id));
       if (mounted) {
-        _monto.clear();
+        for (final c in _montos.values) {
+          c.clear();
+        }
         setState(() => _guardando = false);
-        mostrarMensaje(context, 'Venta agregada');
+        mostrarMensaje(context,
+            montos.length == 1 ? 'Venta agregada' : '${montos.length} ventas agregadas');
       }
     } catch (e) {
       if (mounted) {
@@ -186,51 +222,22 @@ class _VentaFormState extends ConsumerState<_VentaForm> {
 
   @override
   Widget build(BuildContext context) {
-    final existe = widget.medios.any((m) => m.id == _medioPagoId);
-    final medioSel = existe ? _medioPagoId : widget.medios.first.id;
-    return CargaFormPanel(
-      titulo: 'Agregar venta',
+    return CargaGridPanel(
+      titulo: 'Agregar ventas',
       formKey: _formKey,
+      fecha: _fecha,
+      onFecha: _elegirFecha,
       guardando: _guardando,
       onGuardar: _guardar,
-      campos: [
-        SizedBox(
-          width: 220,
-          child: DropdownButtonFormField<String>(
-            initialValue: medioSel,
-            isExpanded: true,
-            decoration: const InputDecoration(
-                labelText: 'Medio de pago', isDense: true),
-            items: [
-              for (final m in widget.medios)
-                DropdownMenuItem(
-                  value: m.id,
-                  child: Text(m.retencionPct > 0
-                      ? '${m.nombre} (ret. ${Fmt.pct(m.retencionPct)})'
-                      : m.nombre),
-                ),
-            ],
-            onChanged: (v) => setState(() => _medioPagoId = v),
-            validator: (v) => v == null ? 'Elegí un medio' : null,
+      filas: [
+        for (final m in _ordenados)
+          CargaGridRow(
+            etiqueta: m.nombre,
+            subtitulo: m.retencionPct > 0
+                ? 'Retención ${Fmt.pct(m.retencionPct)}'
+                : null,
+            controller: _montos[m.id]!,
           ),
-        ),
-        SizedBox(
-          width: 160,
-          child: TextFormField(
-            controller: _monto,
-            decoration: const InputDecoration(
-                labelText: 'Monto', prefixText: r'$ ', isDense: true),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            onFieldSubmitted: (_) => _guardar(),
-            validator: (v) {
-              final n = parseMonto(v ?? '');
-              if (n == null) return 'Monto inválido';
-              if (n < 0) return 'No puede ser negativo';
-              return null;
-            },
-          ),
-        ),
-        FechaField(fecha: _fecha, onTap: _elegirFecha),
       ],
     );
   }
