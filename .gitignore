@@ -34,3 +34,4 @@ ios/Flutter/.last_build_id
 android/.gradle
 android/local.properties
 *.g.dart.lock
+.vercel

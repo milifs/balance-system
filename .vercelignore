@@ -4,7 +4,7 @@ package-lock.json
 *.xlsx
 *.docx
 Balance System/
-supabase/
+/supabase/
 build_docx.js
 
 # Flutter local (Vercel reconstruye desde cero)

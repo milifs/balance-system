@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+if [ ! -d flutter ]; then
+  git clone https://github.com/flutter/flutter.git -b 3.44.0 --depth 1
+fi
+flutter/bin/flutter config --enable-web
+cd app
+../flutter/bin/flutter build web --release \
+  --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+  --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
