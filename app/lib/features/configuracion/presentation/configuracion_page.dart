@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import 'sections/categorias_section.dart';
 import 'sections/cortes_section.dart';
 import 'sections/medios_pago_section.dart';
+import 'sections/permisos_cajera_section.dart';
 import 'sections/sucursales_section.dart';
 import 'sections/tipos_gasto_section.dart';
 
@@ -23,6 +24,7 @@ class _ConfiguracionPageState extends State<ConfiguracionPage> {
     (_Sec(icono: Icons.content_cut, label: 'Cortes')),
     (_Sec(icono: Icons.payments, label: 'Medios de pago')),
     (_Sec(icono: Icons.receipt_long, label: 'Tipos de gasto')),
+    (_Sec(icono: Icons.admin_panel_settings, label: 'Permisos de la cajera')),
   ];
 
   Widget _contenido() {
@@ -37,6 +39,8 @@ class _ConfiguracionPageState extends State<ConfiguracionPage> {
         return const MediosPagoSection();
       case 4:
         return const TiposGastoSection();
+      case 5:
+        return const PermisosCajeraSection();
       default:
         return const SizedBox.shrink();
     }

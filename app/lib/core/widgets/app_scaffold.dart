@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../auth/application/auth_providers.dart';
 import '../../auth/domain/app_profile.dart';
+import '../permisos/permisos_providers.dart';
 import '../router/modules.dart';
 import '../theme/app_theme.dart';
 
@@ -21,7 +22,12 @@ class AppScaffold extends ConsumerWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final visibles = modulosPara(profile.rol);
+    final permisos =
+        ref.watch(permisosCajeraProvider).asData?.value ?? const <String, bool>{};
+    final visibles = modulosPara(profile.rol, permisos);
+    if (visibles.isEmpty) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final selectedIndex = visibles.indexWhere((m) => location.startsWith(m.ruta));
     final tituloModulo = selectedIndex >= 0 ? visibles[selectedIndex].label : '';
 

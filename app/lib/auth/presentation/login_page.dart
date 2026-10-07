@@ -45,8 +45,29 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
   }
 
+  Future<void> _recuperar() async {
+    final email = await showDialog<String>(
+      context: context,
+      builder: (_) => _RecuperarDialog(emailInicial: _emailCtrl.text.trim()),
+    );
+    if (email == null || !mounted) return;
+    try {
+      await ref.read(authRepositoryProvider).enviarRecuperacion(email);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Te mandamos un mail a $email con el link.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo enviar el mail. Probá en un rato.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final errorLink = ref.watch(authLinkErrorProvider);
     return Scaffold(
       backgroundColor: AppColors.crema,
       body: Center(
@@ -78,6 +99,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(color: AppColors.grisTexto),
                       ),
+                      if (errorLink != null) ...[
+                        const SizedBox(height: 20),
+                        Text(
+                          '$errorLink\nPedí un link nuevo con "¿Olvidaste tu contraseña?".',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.rojoNegativo,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 28),
                       TextFormField(
                         controller: _emailCtrl,
@@ -125,6 +157,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               : const Text('Ingresar'),
                         ),
                       ),
+                      TextButton(
+                        onPressed: _cargando ? null : _recuperar,
+                        child: const Text('¿Olvidaste tu contraseña?'),
+                      ),
                       if (!Env.hasAnonKey) ...[
                         const SizedBox(height: 16),
                         const Text(
@@ -141,6 +177,67 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _RecuperarDialog extends StatefulWidget {
+  const _RecuperarDialog({required this.emailInicial});
+
+  final String emailInicial;
+
+  @override
+  State<_RecuperarDialog> createState() => _RecuperarDialogState();
+}
+
+class _RecuperarDialogState extends State<_RecuperarDialog> {
+  late final _ctrl = TextEditingController(text: widget.emailInicial);
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _enviar() {
+    if (!_formKey.currentState!.validate()) return;
+    Navigator.of(context).pop(_ctrl.text.trim());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Recuperar contraseña'),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Te mandamos un link por mail. Abrilo en este mismo navegador.',
+              style: TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _ctrl,
+              autofocus: true,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(labelText: 'Email'),
+              onFieldSubmitted: (_) => _enviar(),
+              validator: (v) =>
+                  (v == null || !v.contains('@')) ? 'Email inválido' : null,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(onPressed: _enviar, child: const Text('Enviar link')),
+      ],
     );
   }
 }

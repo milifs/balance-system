@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/app_profile.dart';
@@ -16,6 +17,22 @@ class AuthRepository {
   }
 
   Future<void> signOut() => _client.auth.signOut();
+
+  /// Manda el mail con el link para elegir una contraseña nueva.
+  ///
+  /// El `redirectTo` tiene que estar habilitado en Supabase (Authentication >
+  /// URL Configuration). Se usa el origen actual para que ande igual en
+  /// localhost que en el dominio de producción.
+  Future<void> enviarRecuperacion(String email) {
+    return _client.auth.resetPasswordForEmail(
+      email,
+      redirectTo: kIsWeb ? Uri.base.origin : null,
+    );
+  }
+
+  Future<void> cambiarPassword(String password) {
+    return _client.auth.updateUser(UserAttributes(password: password));
+  }
 
   /// Trae el perfil (rol + sucursal) del usuario autenticado.
   Future<AppProfile?> fetchProfile() async {
