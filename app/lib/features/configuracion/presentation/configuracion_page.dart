@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../auth/application/auth_providers.dart';
+import '../../../core/permisos/permisos_providers.dart';
+import '../../../core/router/modules.dart';
 import '../../../core/theme/app_theme.dart';
 import 'sections/categorias_section.dart';
 import 'sections/cortes_section.dart';
@@ -8,38 +12,31 @@ import 'sections/permisos_cajera_section.dart';
 import 'sections/sucursales_section.dart';
 import 'sections/tipos_gasto_section.dart';
 
-class ConfiguracionPage extends StatefulWidget {
+class ConfiguracionPage extends ConsumerStatefulWidget {
   const ConfiguracionPage({super.key});
 
   @override
-  State<ConfiguracionPage> createState() => _ConfiguracionPageState();
+  ConsumerState<ConfiguracionPage> createState() => _ConfiguracionPageState();
 }
 
-class _ConfiguracionPageState extends State<ConfiguracionPage> {
-  int _seccion = 0;
+class _ConfiguracionPageState extends ConsumerState<ConfiguracionPage> {
+  /// Sección elegida, por ruta. Se guarda la ruta y no el índice porque la
+  /// lista de secciones visibles cambia según el rol y los permisos.
+  String? _ruta;
 
-  static const _items = [
-    (_Sec(icono: Icons.store, label: 'Sucursales')),
-    (_Sec(icono: Icons.category, label: 'Categorías y rinde')),
-    (_Sec(icono: Icons.content_cut, label: 'Cortes')),
-    (_Sec(icono: Icons.payments, label: 'Medios de pago')),
-    (_Sec(icono: Icons.receipt_long, label: 'Tipos de gasto')),
-    (_Sec(icono: Icons.admin_panel_settings, label: 'Permisos de la cajera')),
-  ];
-
-  Widget _contenido() {
-    switch (_seccion) {
-      case 0:
+  Widget _contenido(String ruta) {
+    switch (ruta) {
+      case '$rutaConfiguracion/sucursales':
         return const SucursalesSection();
-      case 1:
+      case '$rutaConfiguracion/categorias':
         return const CategoriasSection();
-      case 2:
+      case '$rutaConfiguracion/cortes':
         return const CortesSection();
-      case 3:
+      case '$rutaConfiguracion/medios-pago':
         return const MediosPagoSection();
-      case 4:
+      case '$rutaConfiguracion/tipos-gasto':
         return const TiposGastoSection();
-      case 5:
+      case '$rutaConfiguracion/permisos':
         return const PermisosCajeraSection();
       default:
         return const SizedBox.shrink();
@@ -48,6 +45,24 @@ class _ConfiguracionPageState extends State<ConfiguracionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final profile = ref.watch(currentProfileProvider).asData?.value;
+    final permisos =
+        ref.watch(permisosCajeraProvider).asData?.value ?? const <String, bool>{};
+    if (profile == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final visibles = seccionesPara(profile.rol, permisos);
+    if (visibles.isEmpty) {
+      // El router no debería dejar llegar acá, pero puede pasar por un frame
+      // si el admin apaga la última sección mientras la cajera está adentro.
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Si la sección elegida dejó de estar permitida, caer en la primera.
+    final actual =
+        visibles.any((s) => s.ruta == _ruta) ? _ruta! : visibles.first.ruta;
+
     return Row(
       children: [
         Material(
@@ -55,40 +70,34 @@ class _ConfiguracionPageState extends State<ConfiguracionPage> {
           child: SizedBox(
             width: 240,
             child: ListView(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
-                child: Text('CONFIGURACIÓN',
-                    style: TextStyle(
-                      color: AppColors.grisTexto,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      letterSpacing: 1.1,
-                    )),
-              ),
-              for (var i = 0; i < _items.length; i++)
-                ListTile(
-                  selected: _seccion == i,
-                  selectedTileColor: AppColors.rojo.withValues(alpha: 0.08),
-                  selectedColor: AppColors.rojo,
-                  leading: Icon(_items[i].icono),
-                  title: Text(_items[i].label),
-                  onTap: () => setState(() => _seccion = i),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  child: Text('CONFIGURACIÓN',
+                      style: TextStyle(
+                        color: AppColors.grisTexto,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        letterSpacing: 1.1,
+                      )),
                 ),
-            ],
-          ),
+                for (final s in visibles)
+                  ListTile(
+                    selected: actual == s.ruta,
+                    selectedTileColor: AppColors.rojo.withValues(alpha: 0.08),
+                    selectedColor: AppColors.rojo,
+                    leading: Icon(s.icono),
+                    title: Text(s.label),
+                    onTap: () => setState(() => _ruta = s.ruta),
+                  ),
+              ],
+            ),
           ),
         ),
         const VerticalDivider(width: 1, color: Color(0x11000000)),
-        Expanded(child: _contenido()),
+        Expanded(child: _contenido(actual)),
       ],
     );
   }
-}
-
-class _Sec {
-  const _Sec({required this.icono, required this.label});
-  final IconData icono;
-  final String label;
 }
