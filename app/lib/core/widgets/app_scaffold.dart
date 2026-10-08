@@ -24,12 +24,21 @@ class AppScaffold extends ConsumerWidget {
 
     final permisos =
         ref.watch(permisosCajeraProvider).asData?.value ?? const <String, bool>{};
-    final visibles = modulosPara(profile.rol, permisos);
-    if (visibles.isEmpty) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    final selectedIndex = visibles.indexWhere((m) => location.startsWith(m.ruta));
-    final tituloModulo = selectedIndex >= 0 ? visibles[selectedIndex].label : '';
+
+    // Soporte va último y fuera de los permisos, así que siempre hay al menos
+    // un destino: incluso la cajera sin ningún módulo habilitado puede entrar
+    // a reportar que no puede trabajar.
+    final destinos = [
+      ...modulosPara(profile.rol, permisos),
+      ...modulosSoportePara(profile.rol),
+    ];
+
+    // `lastIndexWhere` y no `indexWhere`: `/soporte/bandeja` también empieza
+    // con `/soporte`, y tiene que ganar el destino más específico, que es el
+    // que va después en la lista.
+    final selectedIndex =
+        destinos.lastIndexWhere((m) => location.startsWith(m.ruta));
+    final tituloModulo = selectedIndex >= 0 ? destinos[selectedIndex].label : '';
 
     return Scaffold(
       appBar: AppBar(
@@ -68,10 +77,10 @@ class AppScaffold extends ConsumerWidget {
             extended: MediaQuery.of(context).size.width > 1100,
             minWidth: 72,
             selectedIndex: selectedIndex >= 0 ? selectedIndex : 0,
-            onDestinationSelected: (i) => context.go(visibles[i].ruta),
+            onDestinationSelected: (i) => context.go(destinos[i].ruta),
             leading: const SizedBox(height: 8),
             destinations: [
-              for (final m in visibles)
+              for (final m in destinos)
                 NavigationRailDestination(
                   icon: Icon(m.icono),
                   label: Text(m.label),

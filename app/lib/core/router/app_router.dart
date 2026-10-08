@@ -13,6 +13,8 @@ import '../../features/configuracion/presentation/configuracion_page.dart';
 import '../../features/historial/presentation/historial_page.dart';
 import '../../features/pesaje/presentation/pesaje_page.dart';
 import '../../features/precios_rinde/presentation/precios_rinde_page.dart';
+import '../../features/soporte/presentation/bandeja_soporte_page.dart';
+import '../../features/soporte/presentation/reportar_problema_page.dart';
 import '../permisos/permisos_providers.dart';
 import '../widgets/app_scaffold.dart';
 import 'modules.dart';
@@ -53,8 +55,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       final permisos = permisosAsync.asData?.value ?? const <String, bool>{};
       final visibles = modulosPara(profile.rol, permisos);
 
+      // La bandeja es triage: solo admin.
+      if (loc.startsWith(rutaSoporteBandeja) && !profile.esAdmin) {
+        return rutaSoporte;
+      }
+
+      // Reportar un problema no pasa por los permisos: tiene que andar
+      // incluso para alguien que se quedó sin ningún módulo, que es
+      // justamente el que necesita avisar.
+      final esSoporte = loc.startsWith(rutaSoporte);
+
       // El admin le apagó todos los módulos a la cajera.
       if (visibles.isEmpty) {
+        if (esSoporte) return null;
         return loc == '/sin-acceso' ? null : '/sin-acceso';
       }
 
@@ -62,6 +75,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (loc == '/login' || loc == '/splash' || loc == '/sin-acceso') {
         return inicio;
       }
+      if (esSoporte) return null;
 
       // Guard: módulo que este usuario no tiene habilitado.
       final modulo = modulos.where((m) => loc.startsWith(m.ruta)).firstOrNull;
@@ -85,6 +99,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/balance', builder: (_, _) => const BalancePage()),
           GoRoute(path: '/historial', builder: (_, _) => const HistorialPage()),
           GoRoute(path: '/configuracion', builder: (_, _) => const ConfiguracionPage()),
+          GoRoute(
+            path: rutaSoporte,
+            builder: (_, _) => const ReportarProblemaPage(),
+            routes: [
+              GoRoute(
+                path: 'bandeja',
+                builder: (_, _) => const BandejaSoportePage(),
+              ),
+            ],
+          ),
         ],
       ),
     ],

@@ -130,3 +130,37 @@ String? rutaInicio(Rol rol, Map<String, bool> permisosCajera) {
   final visibles = modulosPara(rol, permisosCajera);
   return visibles.isEmpty ? null : visibles.first.ruta;
 }
+
+// =============================================================
+// Soporte
+// =============================================================
+
+/// "Reportar un problema". Accesible para TODOS los roles.
+const rutaSoporte = '/soporte';
+
+/// Bandeja de triage de los reclamos. Solo admin.
+const rutaSoporteBandeja = '/soporte/bandeja';
+
+/// Entradas de Soporte en la navegación.
+///
+/// Van aparte de [modulos] porque **no pasan por los permisos de la cajera**,
+/// y por eso tampoco aparecen en [modulosConfigurables] ni tienen fila en
+/// `permisos_cajera`: el caso que más importa es el de alguien que no puede
+/// trabajar porque le falta un acceso, y si reportar dependiera de un permiso
+/// esa persona no podría avisar.
+///
+/// La bandeja sí es solo del admin: es triage, no reporte.
+List<ModuloApp> modulosSoportePara(Rol rol) => [
+      const ModuloApp(
+        ruta: rutaSoporte,
+        label: 'Soporte',
+        icono: Icons.support_agent,
+      ),
+      if (rol == Rol.admin)
+        const ModuloApp(
+          ruta: rutaSoporteBandeja,
+          label: 'Bandeja',
+          icono: Icons.inbox,
+          exclusivoAdmin: true,
+        ),
+    ];

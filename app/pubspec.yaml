@@ -43,6 +43,9 @@ dependencies:
   intl: 0.20.2
   pdf: ^3.11.0
   printing: ^5.13.0
+  # Soporte: captura adjunta al reclamo + aviso por WhatsApp.
+  image_picker: ^1.2.1
+  url_launcher: ^6.3.2
   flutter_localizations:
     sdk: flutter
 

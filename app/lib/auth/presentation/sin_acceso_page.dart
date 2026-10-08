@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../core/router/modules.dart';
 import '../../core/theme/app_theme.dart';
 import '../application/auth_providers.dart';
 
@@ -43,6 +45,14 @@ class SinAccesoPage extends ConsumerWidget {
                   FilledButton(
                     onPressed: () => ref.read(authRepositoryProvider).signOut(),
                     child: const Text('Cerrar sesión'),
+                  ),
+                  const SizedBox(height: 8),
+                  // Esta es la salida de la trampa: quedarse sin módulos es
+                  // justamente el problema que hay que poder reportar.
+                  TextButton.icon(
+                    onPressed: () => context.go(rutaSoporte),
+                    icon: const Icon(Icons.support_agent, size: 18),
+                    label: const Text('Reportar un problema'),
                   ),
                 ],
               ),
