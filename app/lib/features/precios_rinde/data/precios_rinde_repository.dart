@@ -47,4 +47,13 @@ class PreciosRindeRepository {
     ];
     await _db.from('precios').upsert(payload, onConflict: 'corte_id');
   }
+
+  /// Actualiza los kilos de rinde de los cortes que cambiaron. Va por `update`
+  /// y no por `upsert` porque `cortes` tiene columnas obligatorias que esta
+  /// pantalla no conoce.
+  Future<void> guardarKgr(Map<String, double> porCorte) async {
+    for (final e in porCorte.entries) {
+      await _db.from('cortes').update({'kgr_rinde': e.value}).eq('id', e.key);
+    }
+  }
 }

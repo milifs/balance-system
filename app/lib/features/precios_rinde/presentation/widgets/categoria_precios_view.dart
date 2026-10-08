@@ -7,6 +7,7 @@ import '../../../../core/models/categoria.dart';
 import '../../../../core/models/corte.dart';
 import '../../../../core/models/precio.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../configuracion/application/configuracion_providers.dart';
 import '../../application/precios_rinde_providers.dart';
 import '../../data/precios_rinde_repository.dart';
 
@@ -34,6 +35,7 @@ class CategoriaPreciosView extends ConsumerStatefulWidget {
 class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
   late final TextEditingController _incremento;
   late final Map<String, TextEditingController> _nuevo;
+  late final Map<String, TextEditingController> _kgr;
   final Map<String, double?> _calc = {};
   bool _guardando = false;
 
@@ -45,7 +47,11 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
     _nuevo = {
       for (final c in widget.cortes) c.id: TextEditingController(),
     };
-    for (final ctrl in _nuevo.values) {
+    _kgr = {
+      for (final c in widget.cortes)
+        c.id: TextEditingController(text: _trim(c.kgrRinde)),
+    };
+    for (final ctrl in [..._nuevo.values, ..._kgr.values]) {
       ctrl.addListener(_recalcular);
     }
   }
@@ -53,7 +59,7 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
   @override
   void dispose() {
     _incremento.dispose();
-    for (final ctrl in _nuevo.values) {
+    for (final ctrl in [..._nuevo.values, ..._kgr.values]) {
       ctrl.dispose();
     }
     super.dispose();
@@ -66,6 +72,9 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
     final ingresado = _parse(_nuevo[c.id]?.text ?? '');
     return ingresado ?? widget.precios[c.id]?.actual;
   }
+
+  /// KGR que alimenta el rinde: lo tipeado, o lo guardado si el campo quedó vacío.
+  double _kgrVivo(Corte c) => _parse(_kgr[c.id]?.text ?? '') ?? c.kgrRinde;
 
   void _calcular() {
     final i = _parse(_incremento.text) ?? 0;
@@ -96,8 +105,15 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
             nuevoPenultimo: widget.precios[c.id]?.ultimo,
           ),
       ];
-      await ref.read(preciosRindeRepositoryProvider).guardarPrecios(rotaciones);
+      final kgrCambiados = {
+        for (final c in widget.cortes)
+          if (_kgrVivo(c) != c.kgrRinde) c.id: _kgrVivo(c),
+      };
+      final repo = ref.read(preciosRindeRepositoryProvider);
+      await repo.guardarPrecios(rotaciones);
+      if (kgrCambiados.isNotEmpty) await repo.guardarKgr(kgrCambiados);
       ref.invalidate(preciosProvider);
+      if (kgrCambiados.isNotEmpty) ref.invalidate(cortesProvider);
       if (mounted) {
         _calc.clear();
         _snack('Precios de ${widget.categoria.nombre} guardados.');
@@ -290,8 +306,8 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
     double kgTotal = 0;
     double ingreso = 0;
     for (final c in widget.cortes) {
-      kgTotal += c.kgrRinde;
-      ingreso += c.kgrRinde * (_precioVivo(c) ?? 0);
+      kgTotal += _kgrVivo(c);
+      ingreso += _kgrVivo(c) * (_precioVivo(c) ?? 0);
     }
     final costo = widget.categoria.costoPiezaBase;
     final resultado = costo == null ? null : ingreso - costo;
@@ -372,7 +388,7 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
 
   Widget _filaRinde(Corte c) {
     final precio = _precioVivo(c);
-    final total = c.kgrRinde * (precio ?? 0);
+    final total = _kgrVivo(c) * (precio ?? 0);
     Widget cell(String t, int flex,
             {Alignment a = Alignment.centerRight}) =>
         Expanded(
@@ -390,7 +406,31 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
       child: Row(
         children: [
           cell(c.nombre, 4, a: Alignment.centerLeft),
-          cell(Fmt.kg(c.kgrRinde), 2),
+          Expanded(
+            flex: 2,
+            child: widget.esAdmin
+                ? TextField(
+                    controller: _kgr[c.id],
+                    textAlign: TextAlign.right,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                    ],
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      hintText: '0',
+                      suffixText: 'kg',
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                    ),
+                  )
+                : Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(Fmt.kg(_kgrVivo(c)),
+                        overflow: TextOverflow.ellipsis),
+                  ),
+          ),
           cell(_money(precio), 3),
           cell(Fmt.moneda(total), 3),
         ],
