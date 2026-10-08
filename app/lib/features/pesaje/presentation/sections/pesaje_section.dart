@@ -127,11 +127,8 @@ class PesajeSection extends ConsumerWidget {
     );
   }
 
-  /// Precio unitario a usar según valorización del corte.
-  static double? _precioCorte(Corte corte, Precio? precio) {
-    if (corte.valorizaA == ValorizaA.costo) return corte.costoManual;
-    return precio?.actual;
-  }
+  /// Precio unitario a usar: el vigente en la Lista de Precios.
+  static double? _precioCorte(Corte corte, Precio? precio) => precio?.actual;
 
   Future<void> _editarCorte(
     BuildContext context,

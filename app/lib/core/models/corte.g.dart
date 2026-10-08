@@ -13,10 +13,6 @@ _Corte _$CorteFromJson(Map<String, dynamic> json) => _Corte(
   kgrRinde: (json['kgr_rinde'] as num?)?.toDouble() ?? 0,
   activo: json['activo'] as bool? ?? true,
   orden: (json['orden'] as num?)?.toInt() ?? 0,
-  valorizaA:
-      $enumDecodeNullable(_$ValorizaAEnumMap, json['valoriza_a']) ??
-      ValorizaA.venta,
-  costoManual: (json['costo_manual'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$CorteToJson(_Corte instance) => <String, dynamic>{
@@ -26,8 +22,4 @@ Map<String, dynamic> _$CorteToJson(_Corte instance) => <String, dynamic>{
   'kgr_rinde': instance.kgrRinde,
   'activo': instance.activo,
   'orden': instance.orden,
-  'valoriza_a': _$ValorizaAEnumMap[instance.valorizaA]!,
-  'costo_manual': instance.costoManual,
 };
-
-const _$ValorizaAEnumMap = {ValorizaA.venta: 'venta', ValorizaA.costo: 'costo'};

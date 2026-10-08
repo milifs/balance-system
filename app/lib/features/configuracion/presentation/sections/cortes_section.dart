@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/formatters/formatters.dart';
 import '../../../../core/models/categoria.dart';
 import '../../../../core/models/corte.dart';
 import '../../application/configuracion_providers.dart';
@@ -20,9 +19,8 @@ class CortesSection extends ConsumerWidget {
     return SectionScaffold(
       titulo: 'Cortes',
       descripcion:
-          'Cortes por categoría con su KGR (kilos de rinde). Los cortes '
-          'individuales se valorizan a precio de venta; las piezas enteras, a '
-          'costo manual.',
+          'Los cortes que se pesan en cada período, agrupados por categoría. '
+          'Los kilos se cargan en el Pesaje y el precio, en Lista de Precios.',
       textoAgregar: 'Nuevo corte',
       onAgregar: categorias.isEmpty
           ? null
@@ -53,17 +51,12 @@ class CortesSection extends ConsumerWidget {
           ListTile(
             dense: true,
             leading: Icon(
-              c.valorizaA == ValorizaA.costo ? Icons.inventory_2 : Icons.sell,
+              Icons.sell,
               size: 20,
               color: c.activo ? null : Colors.grey,
             ),
             title: Text(c.nombre),
-            subtitle: Text(
-              'KGR: ${Fmt.kg(c.kgrRinde)}   ·   '
-              '${c.valorizaA == ValorizaA.costo ? 'Costo' : 'Venta'}'
-              '${c.costoManual != null ? ' (${Fmt.moneda(c.costoManual)})' : ''}'
-              '${c.activo ? '' : '   ·   inactivo'}',
-            ),
+            subtitle: c.activo ? null : const Text('inactivo'),
             trailing: IconButton(
               icon: const Icon(Icons.edit, size: 20),
               onPressed: () => _editar(context, ref, categorias, corte: c),
@@ -99,11 +92,8 @@ class _CorteDialog extends ConsumerStatefulWidget {
 class _CorteDialogState extends ConsumerState<_CorteDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nombre;
-  late final TextEditingController _kgr;
-  late final TextEditingController _costo;
   late final TextEditingController _orden;
   late String _categoriaId;
-  late ValorizaA _valorizaA;
   late bool _activo;
   bool _guardando = false;
 
@@ -112,25 +102,17 @@ class _CorteDialogState extends ConsumerState<_CorteDialog> {
     super.initState();
     final c = widget.corte;
     _nombre = TextEditingController(text: c?.nombre ?? '');
-    _kgr = TextEditingController(text: (c?.kgrRinde ?? 0).toString());
-    _costo = TextEditingController(text: c?.costoManual?.toString() ?? '');
     _orden = TextEditingController(text: (c?.orden ?? 0).toString());
     _categoriaId = c?.categoriaId ?? widget.categorias.first.id;
-    _valorizaA = c?.valorizaA ?? ValorizaA.venta;
     _activo = c?.activo ?? true;
   }
 
   @override
   void dispose() {
     _nombre.dispose();
-    _kgr.dispose();
-    _costo.dispose();
     _orden.dispose();
     super.dispose();
   }
-
-  double? _num(TextEditingController c) =>
-      c.text.trim().isEmpty ? null : double.tryParse(c.text.replaceAll(',', '.'));
 
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
@@ -140,9 +122,6 @@ class _CorteDialogState extends ConsumerState<_CorteDialog> {
             id: widget.corte?.id,
             categoriaId: _categoriaId,
             nombre: _nombre.text.trim(),
-            kgrRinde: _num(_kgr) ?? 0,
-            valorizaA: _valorizaA,
-            costoManual: _valorizaA == ValorizaA.costo ? _num(_costo) : null,
             activo: _activo,
             orden: int.tryParse(_orden.text) ?? 0,
           );
@@ -182,30 +161,6 @@ class _CorteDialogState extends ConsumerState<_CorteDialog> {
                   decoration: const InputDecoration(labelText: 'Nombre del corte'),
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _kgr,
-                  decoration: const InputDecoration(labelText: 'KGR (kilos de rinde)', suffixText: 'kg'),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<ValorizaA>(
-                  initialValue: _valorizaA,
-                  decoration: const InputDecoration(labelText: 'Se valoriza a'),
-                  items: const [
-                    DropdownMenuItem(value: ValorizaA.venta, child: Text('Precio de venta (corte individual)')),
-                    DropdownMenuItem(value: ValorizaA.costo, child: Text('Costo manual (pieza entera)')),
-                  ],
-                  onChanged: (v) => setState(() => _valorizaA = v!),
-                ),
-                if (_valorizaA == ValorizaA.costo) ...[
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _costo,
-                    decoration: const InputDecoration(labelText: 'Costo manual', prefixText: r'$ '),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  ),
-                ],
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _orden,

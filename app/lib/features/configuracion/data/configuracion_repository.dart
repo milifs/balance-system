@@ -59,22 +59,17 @@ class ConfiguracionRepository {
     return rows.map(Corte.fromJson).toList();
   }
 
+  /// No toca `kgr_rinde`: se edita desde Lista de Precios, al lado del precio.
   Future<void> upsertCorte({
     String? id,
     required String categoriaId,
     required String nombre,
-    required double kgrRinde,
-    required ValorizaA valorizaA,
-    double? costoManual,
     required bool activo,
     required int orden,
   }) async {
     final data = {
       'categoria_id': categoriaId,
       'nombre': nombre,
-      'kgr_rinde': kgrRinde,
-      'valoriza_a': valorizaA.name,
-      'costo_manual': costoManual,
       'activo': activo,
       'orden': orden,
     };

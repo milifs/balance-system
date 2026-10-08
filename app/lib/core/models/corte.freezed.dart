@@ -16,7 +16,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Corte {
 
- String get id; String get categoriaId; String get nombre; double get kgrRinde; bool get activo; int get orden; ValorizaA get valorizaA; double? get costoManual;
+ String get id; String get categoriaId; String get nombre;/// Kilos que rinde el corte al despiezar la pieza base. Alimenta el cuadro
+/// de rinde de Lista de Precios; no tiene relación con los kilos pesados
+/// en cada período.
+ double get kgrRinde; bool get activo; int get orden;
 /// Create a copy of Corte
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +32,16 @@ $CorteCopyWith<Corte> get copyWith => _$CorteCopyWithImpl<Corte>(this as Corte, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Corte&&(identical(other.id, id) || other.id == id)&&(identical(other.categoriaId, categoriaId) || other.categoriaId == categoriaId)&&(identical(other.nombre, nombre) || other.nombre == nombre)&&(identical(other.kgrRinde, kgrRinde) || other.kgrRinde == kgrRinde)&&(identical(other.activo, activo) || other.activo == activo)&&(identical(other.orden, orden) || other.orden == orden)&&(identical(other.valorizaA, valorizaA) || other.valorizaA == valorizaA)&&(identical(other.costoManual, costoManual) || other.costoManual == costoManual));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Corte&&(identical(other.id, id) || other.id == id)&&(identical(other.categoriaId, categoriaId) || other.categoriaId == categoriaId)&&(identical(other.nombre, nombre) || other.nombre == nombre)&&(identical(other.kgrRinde, kgrRinde) || other.kgrRinde == kgrRinde)&&(identical(other.activo, activo) || other.activo == activo)&&(identical(other.orden, orden) || other.orden == orden));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,categoriaId,nombre,kgrRinde,activo,orden,valorizaA,costoManual);
+int get hashCode => Object.hash(runtimeType,id,categoriaId,nombre,kgrRinde,activo,orden);
 
 @override
 String toString() {
-  return 'Corte(id: $id, categoriaId: $categoriaId, nombre: $nombre, kgrRinde: $kgrRinde, activo: $activo, orden: $orden, valorizaA: $valorizaA, costoManual: $costoManual)';
+  return 'Corte(id: $id, categoriaId: $categoriaId, nombre: $nombre, kgrRinde: $kgrRinde, activo: $activo, orden: $orden)';
 }
 
 
@@ -49,7 +52,7 @@ abstract mixin class $CorteCopyWith<$Res>  {
   factory $CorteCopyWith(Corte value, $Res Function(Corte) _then) = _$CorteCopyWithImpl;
 @useResult
 $Res call({
- String id, String categoriaId, String nombre, double kgrRinde, bool activo, int orden, ValorizaA valorizaA, double? costoManual
+ String id, String categoriaId, String nombre, double kgrRinde, bool activo, int orden
 });
 
 
@@ -66,7 +69,7 @@ class _$CorteCopyWithImpl<$Res>
 
 /// Create a copy of Corte
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? categoriaId = null,Object? nombre = null,Object? kgrRinde = null,Object? activo = null,Object? orden = null,Object? valorizaA = null,Object? costoManual = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? categoriaId = null,Object? nombre = null,Object? kgrRinde = null,Object? activo = null,Object? orden = null,}) {
   return _then(Corte(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,categoriaId: null == categoriaId ? _self.categoriaId : categoriaId // ignore: cast_nullable_to_non_nullable
@@ -74,9 +77,7 @@ as String,nombre: null == nombre ? _self.nombre : nombre // ignore: cast_nullabl
 as String,kgrRinde: null == kgrRinde ? _self.kgrRinde : kgrRinde // ignore: cast_nullable_to_non_nullable
 as double,activo: null == activo ? _self.activo : activo // ignore: cast_nullable_to_non_nullable
 as bool,orden: null == orden ? _self.orden : orden // ignore: cast_nullable_to_non_nullable
-as int,valorizaA: null == valorizaA ? _self.valorizaA : valorizaA // ignore: cast_nullable_to_non_nullable
-as ValorizaA,costoManual: freezed == costoManual ? _self.costoManual : costoManual // ignore: cast_nullable_to_non_nullable
-as double?,
+as int,
   ));
 }
 
@@ -161,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String categoriaId,  String nombre,  double kgrRinde,  bool activo,  int orden,  ValorizaA valorizaA,  double? costoManual)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String categoriaId,  String nombre,  double kgrRinde,  bool activo,  int orden)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Corte() when $default != null:
-return $default(_that.id,_that.categoriaId,_that.nombre,_that.kgrRinde,_that.activo,_that.orden,_that.valorizaA,_that.costoManual);case _:
+return $default(_that.id,_that.categoriaId,_that.nombre,_that.kgrRinde,_that.activo,_that.orden);case _:
   return orElse();
 
 }
@@ -182,10 +183,10 @@ return $default(_that.id,_that.categoriaId,_that.nombre,_that.kgrRinde,_that.act
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String categoriaId,  String nombre,  double kgrRinde,  bool activo,  int orden,  ValorizaA valorizaA,  double? costoManual)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String categoriaId,  String nombre,  double kgrRinde,  bool activo,  int orden)  $default,) {final _that = this;
 switch (_that) {
 case _Corte():
-return $default(_that.id,_that.categoriaId,_that.nombre,_that.kgrRinde,_that.activo,_that.orden,_that.valorizaA,_that.costoManual);case _:
+return $default(_that.id,_that.categoriaId,_that.nombre,_that.kgrRinde,_that.activo,_that.orden);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +203,10 @@ return $default(_that.id,_that.categoriaId,_that.nombre,_that.kgrRinde,_that.act
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String categoriaId,  String nombre,  double kgrRinde,  bool activo,  int orden,  ValorizaA valorizaA,  double? costoManual)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String categoriaId,  String nombre,  double kgrRinde,  bool activo,  int orden)?  $default,) {final _that = this;
 switch (_that) {
 case _Corte() when $default != null:
-return $default(_that.id,_that.categoriaId,_that.nombre,_that.kgrRinde,_that.activo,_that.orden,_that.valorizaA,_that.costoManual);case _:
+return $default(_that.id,_that.categoriaId,_that.nombre,_that.kgrRinde,_that.activo,_that.orden);case _:
   return null;
 
 }
@@ -217,17 +218,18 @@ return $default(_that.id,_that.categoriaId,_that.nombre,_that.kgrRinde,_that.act
 @JsonSerializable()
 
 class _Corte implements Corte {
-  const _Corte({required this.id, required this.categoriaId, required this.nombre, this.kgrRinde = 0, this.activo = true, this.orden = 0, this.valorizaA = ValorizaA.venta, this.costoManual});
+  const _Corte({required this.id, required this.categoriaId, required this.nombre, this.kgrRinde = 0, this.activo = true, this.orden = 0});
   factory _Corte.fromJson(Map<String, dynamic> json) => _$CorteFromJson(json);
 
 @override final  String id;
 @override final  String categoriaId;
 @override final  String nombre;
+/// Kilos que rinde el corte al despiezar la pieza base. Alimenta el cuadro
+/// de rinde de Lista de Precios; no tiene relación con los kilos pesados
+/// en cada período.
 @override@JsonKey() final  double kgrRinde;
 @override@JsonKey() final  bool activo;
 @override@JsonKey() final  int orden;
-@override@JsonKey() final  ValorizaA valorizaA;
-@override final  double? costoManual;
 
 /// Create a copy of Corte
 /// with the given fields replaced by the non-null parameter values.
@@ -242,16 +244,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Corte&&(identical(other.id, id) || other.id == id)&&(identical(other.categoriaId, categoriaId) || other.categoriaId == categoriaId)&&(identical(other.nombre, nombre) || other.nombre == nombre)&&(identical(other.kgrRinde, kgrRinde) || other.kgrRinde == kgrRinde)&&(identical(other.activo, activo) || other.activo == activo)&&(identical(other.orden, orden) || other.orden == orden)&&(identical(other.valorizaA, valorizaA) || other.valorizaA == valorizaA)&&(identical(other.costoManual, costoManual) || other.costoManual == costoManual));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Corte&&(identical(other.id, id) || other.id == id)&&(identical(other.categoriaId, categoriaId) || other.categoriaId == categoriaId)&&(identical(other.nombre, nombre) || other.nombre == nombre)&&(identical(other.kgrRinde, kgrRinde) || other.kgrRinde == kgrRinde)&&(identical(other.activo, activo) || other.activo == activo)&&(identical(other.orden, orden) || other.orden == orden));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,categoriaId,nombre,kgrRinde,activo,orden,valorizaA,costoManual);
+int get hashCode => Object.hash(runtimeType,id,categoriaId,nombre,kgrRinde,activo,orden);
 
 @override
 String toString() {
-  return 'Corte(id: $id, categoriaId: $categoriaId, nombre: $nombre, kgrRinde: $kgrRinde, activo: $activo, orden: $orden, valorizaA: $valorizaA, costoManual: $costoManual)';
+  return 'Corte(id: $id, categoriaId: $categoriaId, nombre: $nombre, kgrRinde: $kgrRinde, activo: $activo, orden: $orden)';
 }
 
 
@@ -262,7 +264,7 @@ abstract mixin class _$CorteCopyWith<$Res> implements $CorteCopyWith<$Res> {
   factory _$CorteCopyWith(_Corte value, $Res Function(_Corte) _then) = __$CorteCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String categoriaId, String nombre, double kgrRinde, bool activo, int orden, ValorizaA valorizaA, double? costoManual
+ String id, String categoriaId, String nombre, double kgrRinde, bool activo, int orden
 });
 
 
@@ -279,7 +281,7 @@ class __$CorteCopyWithImpl<$Res>
 
 /// Create a copy of Corte
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? categoriaId = null,Object? nombre = null,Object? kgrRinde = null,Object? activo = null,Object? orden = null,Object? valorizaA = null,Object? costoManual = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? categoriaId = null,Object? nombre = null,Object? kgrRinde = null,Object? activo = null,Object? orden = null,}) {
   return _then(_Corte(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,categoriaId: null == categoriaId ? _self.categoriaId : categoriaId // ignore: cast_nullable_to_non_nullable
@@ -287,9 +289,7 @@ as String,nombre: null == nombre ? _self.nombre : nombre // ignore: cast_nullabl
 as String,kgrRinde: null == kgrRinde ? _self.kgrRinde : kgrRinde // ignore: cast_nullable_to_non_nullable
 as double,activo: null == activo ? _self.activo : activo // ignore: cast_nullable_to_non_nullable
 as bool,orden: null == orden ? _self.orden : orden // ignore: cast_nullable_to_non_nullable
-as int,valorizaA: null == valorizaA ? _self.valorizaA : valorizaA // ignore: cast_nullable_to_non_nullable
-as ValorizaA,costoManual: freezed == costoManual ? _self.costoManual : costoManual // ignore: cast_nullable_to_non_nullable
-as double?,
+as int,
   ));
 }
 
