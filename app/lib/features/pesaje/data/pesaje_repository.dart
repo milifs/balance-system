@@ -78,7 +78,7 @@ class PesajeRepository {
         .from('pesaje_items')
         .select()
         .eq('pesaje_id', pesajeId)
-        .order('creado_at');
+        .order('creado_at', ascending: true);
     return rows.map(PesajeItem.fromJson).toList();
   }
 

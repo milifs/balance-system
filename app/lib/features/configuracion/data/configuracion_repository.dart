@@ -15,7 +15,8 @@ class ConfiguracionRepository {
 
   // ---------------- Sucursales ----------------
   Future<List<Sucursal>> listSucursales() async {
-    final rows = await _db.from('sucursales').select().order('orden');
+    final rows =
+        await _db.from('sucursales').select().order('orden', ascending: true);
     return rows.map(Sucursal.fromJson).toList();
   }
 
@@ -35,7 +36,8 @@ class ConfiguracionRepository {
 
   // ---------------- Categorías (pieza base + factor) ----------------
   Future<List<Categoria>> listCategorias() async {
-    final rows = await _db.from('categorias').select().order('orden');
+    final rows =
+        await _db.from('categorias').select().order('orden', ascending: true);
     return rows.map(Categoria.fromJson).toList();
   }
 
@@ -56,7 +58,8 @@ class ConfiguracionRepository {
 
   // ---------------- Cortes ----------------
   Future<List<Corte>> listCortes() async {
-    final rows = await _db.from('cortes').select().order('orden');
+    final rows =
+        await _db.from('cortes').select().order('orden', ascending: true);
     return rows.map(Corte.fromJson).toList();
   }
 
@@ -83,7 +86,8 @@ class ConfiguracionRepository {
 
   // ---------------- Medios de pago ----------------
   Future<List<MedioPago>> listMediosPago() async {
-    final rows = await _db.from('medios_pago').select().order('orden');
+    final rows =
+        await _db.from('medios_pago').select().order('orden', ascending: true);
     return rows.map(MedioPago.fromJson).toList();
   }
 
@@ -109,7 +113,8 @@ class ConfiguracionRepository {
 
   // ---------------- Tipos de compra ----------------
   Future<List<TipoCompra>> listTiposCompra() async {
-    final rows = await _db.from('tipos_compra').select().order('orden');
+    final rows =
+        await _db.from('tipos_compra').select().order('orden', ascending: true);
     return rows.map(TipoCompra.fromJson).toList();
   }
 
@@ -129,7 +134,8 @@ class ConfiguracionRepository {
 
   // ---------------- Tipos de gasto ----------------
   Future<List<TipoGasto>> listTiposGasto() async {
-    final rows = await _db.from('tipos_gasto').select().order('orden');
+    final rows =
+        await _db.from('tipos_gasto').select().order('orden', ascending: true);
     return rows.map(TipoGasto.fromJson).toList();
   }
 
