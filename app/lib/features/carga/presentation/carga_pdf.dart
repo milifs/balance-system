@@ -205,7 +205,7 @@ pw.Widget _tablaCompras(List<Compra> compras) {
   final rows = compras
       .map((c) => [
             Fmt.fecha(c.fecha),
-            c.tipoCompra.label,
+            c.tipoCompra,
             (c.proveedor ?? '').trim().isEmpty ? '—' : c.proveedor!.trim(),
             Fmt.moneda(c.monto),
           ])

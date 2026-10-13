@@ -4,6 +4,7 @@ import '../../../core/models/categoria.dart';
 import '../../../core/models/corte.dart';
 import '../../../core/models/medio_pago.dart';
 import '../../../core/models/sucursal.dart';
+import '../../../core/models/tipo_compra.dart';
 import '../../../core/models/tipo_gasto.dart';
 
 /// Acceso a los catálogos que se administran en Configuración.
@@ -103,6 +104,26 @@ class ConfiguracionRepository {
       await _db.from('medios_pago').insert(data);
     } else {
       await _db.from('medios_pago').update(data).eq('id', id);
+    }
+  }
+
+  // ---------------- Tipos de compra ----------------
+  Future<List<TipoCompra>> listTiposCompra() async {
+    final rows = await _db.from('tipos_compra').select().order('orden');
+    return rows.map(TipoCompra.fromJson).toList();
+  }
+
+  Future<void> upsertTipoCompra({
+    String? id,
+    required String nombre,
+    required int orden,
+    required bool activo,
+  }) async {
+    final data = {'nombre': nombre, 'orden': orden, 'activo': activo};
+    if (id == null) {
+      await _db.from('tipos_compra').insert(data);
+    } else {
+      await _db.from('tipos_compra').update(data).eq('id', id);
     }
   }
 

@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/formatters/formatters.dart';
 import '../../../../core/models/compra.dart';
 import '../../../../core/models/periodo.dart';
+import '../../../../core/models/tipo_compra.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../configuracion/application/configuracion_providers.dart';
 import '../../application/carga_providers.dart';
 import '../../data/carga_repository.dart';
 import '../widgets/carga_ui.dart';
@@ -20,6 +22,10 @@ class ComprasSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final comprasAsync = ref.watch(comprasProvider(periodo.id));
+    final tiposAsync = ref.watch(tiposCompraProvider);
+    final activos = (tiposAsync.asData?.value ?? const <TipoCompra>[])
+        .where((t) => t.activo)
+        .toList();
 
     return Column(
       children: [
@@ -38,7 +44,20 @@ class ComprasSection extends ConsumerWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                if (editable) _CompraForm(periodo: periodo),
+                if (editable)
+                  activos.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.fromLTRB(20, 4, 20, 8),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'No hay tipos de compra activos. Configurá al '
+                              'menos uno para cargar compras.',
+                              style: TextStyle(color: AppColors.grisTexto),
+                            ),
+                          ),
+                        )
+                      : _CompraForm(periodo: periodo, tipos: activos),
                 cargaListaAsync<Compra>(
                   value: comprasAsync,
                   builder: (items) => ListView.separated(
@@ -52,7 +71,7 @@ class ComprasSection extends ConsumerWidget {
                       return ListTile(
                         leading: const Icon(Icons.local_shipping,
                             color: AppColors.rojo),
-                        title: Text(c.tipoCompra.label),
+                        title: Text(c.tipoCompra),
                         subtitle: Text(
                           '${Fmt.fecha(c.fecha)}${prov.isEmpty ? '' : ' · $prov'}',
                         ),
@@ -90,7 +109,7 @@ class ComprasSection extends ConsumerWidget {
   Future<void> _eliminar(
       BuildContext context, WidgetRef ref, Compra c) async {
     final ok = await confirmarBorrado(context,
-        'la compra de ${c.tipoCompra.label} por ${Fmt.moneda(c.monto)}');
+        'la compra de ${c.tipoCompra} por ${Fmt.moneda(c.monto)}');
     if (!ok) return;
     try {
       await ref.read(cargaRepositoryProvider).eliminarCompra(c.id);
@@ -104,13 +123,14 @@ class ComprasSection extends ConsumerWidget {
 }
 
 /// Cuadro de carga de compras, siempre visible sobre la lista: una fila fija
-/// por cada tipo de carne (orden alfabético: Carne, Cerdo, Pollo — sin
-/// combo). El usuario tipea el monto (y opcionalmente el proveedor) y
-/// guarda todo junto con una fecha compartida.
+/// por cada tipo de compra activo (orden alfabético, sin combo). El usuario
+/// tipea el monto (y opcionalmente el proveedor) y guarda todo junto con una
+/// fecha compartida.
 class _CompraForm extends ConsumerStatefulWidget {
-  const _CompraForm({required this.periodo});
+  const _CompraForm({required this.periodo, required this.tipos});
 
   final Periodo periodo;
+  final List<TipoCompra> tipos;
 
   @override
   ConsumerState<_CompraForm> createState() => _CompraFormState();
@@ -119,23 +139,42 @@ class _CompraForm extends ConsumerStatefulWidget {
 class _CompraFormState extends ConsumerState<_CompraForm> {
   final _formKey = GlobalKey<FormState>();
   late DateTime _fecha;
+  List<TipoCompra> _ordenados = [];
+  Map<String, TextEditingController> _montos = {};
+  Map<String, TextEditingController> _proveedores = {};
   bool _guardando = false;
-
-  static final _tipos = [...TipoCompra.values]
-    ..sort((a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
-
-  final Map<TipoCompra, TextEditingController> _montos = {
-    for (final t in _tipos) t: TextEditingController(),
-  };
-  final Map<TipoCompra, TextEditingController> _proveedores = {
-    for (final t in _tipos) t: TextEditingController(),
-  };
 
   @override
   void initState() {
     super.initState();
     final hoy = DateTime.now();
     _fecha = hoy.isAfter(widget.periodo.fechaFin) ? widget.periodo.fechaFin : hoy;
+    _ordenar();
+  }
+
+  @override
+  void didUpdateWidget(_CompraForm old) {
+    super.didUpdateWidget(old);
+    final idsViejos = old.tipos.map((t) => t.id).toSet();
+    final idsNuevos = widget.tipos.map((t) => t.id).toSet();
+    if (idsViejos != idsNuevos) _ordenar();
+  }
+
+  void _ordenar() {
+    for (final c in _montos.values) {
+      c.dispose();
+    }
+    for (final c in _proveedores.values) {
+      c.dispose();
+    }
+    _ordenados = [...widget.tipos]
+      ..sort((a, b) => a.nombre.toLowerCase().compareTo(b.nombre.toLowerCase()));
+    _montos = {
+      for (final t in _ordenados) t.id: TextEditingController(),
+    };
+    _proveedores = {
+      for (final t in _ordenados) t.id: TextEditingController(),
+    };
   }
 
   @override
@@ -162,14 +201,15 @@ class _CompraFormState extends ConsumerState<_CompraForm> {
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
     final filas = <FilaCompra>[
-      for (final t in _tipos)
-        if (parseMonto(_montos[t]!.text) != null && parseMonto(_montos[t]!.text)! > 0)
+      for (final t in _ordenados)
+        if (parseMonto(_montos[t.id]!.text) != null &&
+            parseMonto(_montos[t.id]!.text)! > 0)
           FilaCompra(
-            tipo: t,
-            monto: parseMonto(_montos[t]!.text)!,
-            proveedor: _proveedores[t]!.text.trim().isEmpty
+            tipo: t.nombre,
+            monto: parseMonto(_montos[t.id]!.text)!,
+            proveedor: _proveedores[t.id]!.text.trim().isEmpty
                 ? null
-                : _proveedores[t]!.text.trim(),
+                : _proveedores[t.id]!.text.trim(),
           ),
     ];
     if (filas.isEmpty) {
@@ -214,12 +254,12 @@ class _CompraFormState extends ConsumerState<_CompraForm> {
       guardando: _guardando,
       onGuardar: _guardar,
       filas: [
-        for (final t in _tipos)
+        for (final t in _ordenados)
           CargaGridRow(
-            etiqueta: t.label,
-            controller: _montos[t]!,
+            etiqueta: t.nombre,
+            controller: _montos[t.id]!,
             extra: TextFormField(
-              controller: _proveedores[t]!,
+              controller: _proveedores[t.id]!,
               decoration: const InputDecoration(
                   labelText: 'Proveedor (opcional)', isDense: true),
             ),

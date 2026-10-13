@@ -5,12 +5,13 @@ import '../../../core/models/gasto.dart';
 import '../../../core/models/periodo.dart';
 import '../../../core/models/venta.dart';
 
-/// Una fila del "cuadro" de compras: tipo de carne fijo + monto + proveedor
+/// Una fila del "cuadro" de compras: nombre del tipo + monto + proveedor
 /// opcional. Se usa para cargar varias filas de una sola vez.
 class FilaCompra {
   const FilaCompra({required this.tipo, required this.monto, this.proveedor});
 
-  final TipoCompra tipo;
+  /// Nombre del tipo de compra, tal como se guarda en `compras.tipo_compra`.
+  final String tipo;
   final double monto;
   final String? proveedor;
 }
@@ -121,7 +122,7 @@ class CargaRepository {
   }
 
   /// Carga en un solo insert las filas no vacías del "cuadro" de compras
-  /// (una fila fija por tipo de carne, sin combo).
+  /// (una fila fija por tipo de compra activo, sin combo).
   Future<void> agregarCompras({
     required String periodoId,
     required String sucursalId,
@@ -136,7 +137,7 @@ class CargaRepository {
           'periodo_id': periodoId,
           'sucursal_id': sucursalId,
           'fecha': f,
-          'tipo_compra': r.tipo.label,
+          'tipo_compra': r.tipo,
           'monto': r.monto,
           'proveedor': r.proveedor,
         },

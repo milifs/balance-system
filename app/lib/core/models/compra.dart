@@ -3,25 +3,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'compra.freezed.dart';
 part 'compra.g.dart';
 
-/// Tipo de mercadería comprada (coincide con las categorías valorizables).
-enum TipoCompra {
-  @JsonValue('Carne')
-  carne,
-  @JsonValue('Cerdo')
-  cerdo,
-  @JsonValue('Pollo')
-  pollo,
-}
-
-extension TipoCompraX on TipoCompra {
-  String get label => switch (this) {
-        TipoCompra.carne => 'Carne',
-        TipoCompra.cerdo => 'Cerdo',
-        TipoCompra.pollo => 'Pollo',
-      };
-}
-
 /// Compra a proveedor para reponer stock durante el período.
+///
+/// `tipoCompra` guarda el **nombre** del tipo y no su id: es el nombre con el
+/// que se cargó la compra, así renombrar o dar de baja un tipo en
+/// Configuración no cambia lo que ya está registrado.
 @freezed
 abstract class Compra with _$Compra {
   const factory Compra({
@@ -29,7 +15,7 @@ abstract class Compra with _$Compra {
     required String periodoId,
     required String sucursalId,
     required DateTime fecha,
-    required TipoCompra tipoCompra,
+    required String tipoCompra,
     @Default(0) double monto,
     String? proveedor,
     DateTime? creadoAt,

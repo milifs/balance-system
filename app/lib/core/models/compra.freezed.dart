@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Compra {
 
- String get id; String get periodoId; String get sucursalId; DateTime get fecha; TipoCompra get tipoCompra; double get monto; String? get proveedor; DateTime? get creadoAt;
+ String get id; String get periodoId; String get sucursalId; DateTime get fecha; String get tipoCompra; double get monto; String? get proveedor; DateTime? get creadoAt;
 /// Create a copy of Compra
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -49,7 +49,7 @@ abstract mixin class $CompraCopyWith<$Res>  {
   factory $CompraCopyWith(Compra value, $Res Function(Compra) _then) = _$CompraCopyWithImpl;
 @useResult
 $Res call({
- String id, String periodoId, String sucursalId, DateTime fecha, TipoCompra tipoCompra, double monto, String? proveedor, DateTime? creadoAt
+ String id, String periodoId, String sucursalId, DateTime fecha, String tipoCompra, double monto, String? proveedor, DateTime? creadoAt
 });
 
 
@@ -73,7 +73,7 @@ as String,periodoId: null == periodoId ? _self.periodoId : periodoId // ignore: 
 as String,sucursalId: null == sucursalId ? _self.sucursalId : sucursalId // ignore: cast_nullable_to_non_nullable
 as String,fecha: null == fecha ? _self.fecha : fecha // ignore: cast_nullable_to_non_nullable
 as DateTime,tipoCompra: null == tipoCompra ? _self.tipoCompra : tipoCompra // ignore: cast_nullable_to_non_nullable
-as TipoCompra,monto: null == monto ? _self.monto : monto // ignore: cast_nullable_to_non_nullable
+as String,monto: null == monto ? _self.monto : monto // ignore: cast_nullable_to_non_nullable
 as double,proveedor: freezed == proveedor ? _self.proveedor : proveedor // ignore: cast_nullable_to_non_nullable
 as String?,creadoAt: freezed == creadoAt ? _self.creadoAt : creadoAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
@@ -161,7 +161,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  TipoCompra tipoCompra,  double monto,  String? proveedor,  DateTime? creadoAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  String tipoCompra,  double monto,  String? proveedor,  DateTime? creadoAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Compra() when $default != null:
 return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.tipoCompra,_that.monto,_that.proveedor,_that.creadoAt);case _:
@@ -182,7 +182,7 @@ return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.tipo
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  TipoCompra tipoCompra,  double monto,  String? proveedor,  DateTime? creadoAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  String tipoCompra,  double monto,  String? proveedor,  DateTime? creadoAt)  $default,) {final _that = this;
 switch (_that) {
 case _Compra():
 return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.tipoCompra,_that.monto,_that.proveedor,_that.creadoAt);case _:
@@ -202,7 +202,7 @@ return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.tipo
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  TipoCompra tipoCompra,  double monto,  String? proveedor,  DateTime? creadoAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  String tipoCompra,  double monto,  String? proveedor,  DateTime? creadoAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Compra() when $default != null:
 return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.tipoCompra,_that.monto,_that.proveedor,_that.creadoAt);case _:
@@ -224,7 +224,7 @@ class _Compra implements Compra {
 @override final  String periodoId;
 @override final  String sucursalId;
 @override final  DateTime fecha;
-@override final  TipoCompra tipoCompra;
+@override final  String tipoCompra;
 @override@JsonKey() final  double monto;
 @override final  String? proveedor;
 @override final  DateTime? creadoAt;
@@ -262,7 +262,7 @@ abstract mixin class _$CompraCopyWith<$Res> implements $CompraCopyWith<$Res> {
   factory _$CompraCopyWith(_Compra value, $Res Function(_Compra) _then) = __$CompraCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String periodoId, String sucursalId, DateTime fecha, TipoCompra tipoCompra, double monto, String? proveedor, DateTime? creadoAt
+ String id, String periodoId, String sucursalId, DateTime fecha, String tipoCompra, double monto, String? proveedor, DateTime? creadoAt
 });
 
 
@@ -286,7 +286,7 @@ as String,periodoId: null == periodoId ? _self.periodoId : periodoId // ignore: 
 as String,sucursalId: null == sucursalId ? _self.sucursalId : sucursalId // ignore: cast_nullable_to_non_nullable
 as String,fecha: null == fecha ? _self.fecha : fecha // ignore: cast_nullable_to_non_nullable
 as DateTime,tipoCompra: null == tipoCompra ? _self.tipoCompra : tipoCompra // ignore: cast_nullable_to_non_nullable
-as TipoCompra,monto: null == monto ? _self.monto : monto // ignore: cast_nullable_to_non_nullable
+as String,monto: null == monto ? _self.monto : monto // ignore: cast_nullable_to_non_nullable
 as double,proveedor: freezed == proveedor ? _self.proveedor : proveedor // ignore: cast_nullable_to_non_nullable
 as String?,creadoAt: freezed == creadoAt ? _self.creadoAt : creadoAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,

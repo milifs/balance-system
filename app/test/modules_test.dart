@@ -53,7 +53,7 @@ void main() {
   });
 
   group('seccionesPara', () {
-    test('el admin ve las 6 secciones, incluida Permisos', () {
+    test('el admin ve todas las secciones, incluida Permisos', () {
       expect(seccionesPara(Rol.admin, _nada()), seccionesConfig);
     });
 

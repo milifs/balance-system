@@ -46,7 +46,7 @@ class SeccionConfig {
   final bool exclusivoAdmin;
 }
 
-/// Las 6 secciones de Configuración, en orden de menú.
+/// Las 7 secciones de Configuración, en orden de menú.
 const List<SeccionConfig> seccionesConfig = [
   SeccionConfig(
       ruta: '$rutaConfiguracion/sucursales',
@@ -64,6 +64,10 @@ const List<SeccionConfig> seccionesConfig = [
       ruta: '$rutaConfiguracion/medios-pago',
       label: 'Medios de pago',
       icono: Icons.payments),
+  SeccionConfig(
+      ruta: '$rutaConfiguracion/tipos-compra',
+      label: 'Tipos de compra',
+      icono: Icons.local_shipping),
   SeccionConfig(
       ruta: '$rutaConfiguracion/tipos-gasto',
       label: 'Tipos de gasto',

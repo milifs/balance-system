@@ -4,6 +4,7 @@ import '../../../core/models/categoria.dart';
 import '../../../core/models/corte.dart';
 import '../../../core/models/medio_pago.dart';
 import '../../../core/models/sucursal.dart';
+import '../../../core/models/tipo_compra.dart';
 import '../../../core/models/tipo_gasto.dart';
 import '../../../core/supabase/supabase_providers.dart';
 import '../data/configuracion_repository.dart';
@@ -26,6 +27,10 @@ final cortesProvider = FutureProvider<List<Corte>>((ref) {
 
 final mediosPagoProvider = FutureProvider<List<MedioPago>>((ref) {
   return ref.watch(configuracionRepositoryProvider).listMediosPago();
+});
+
+final tiposCompraProvider = FutureProvider<List<TipoCompra>>((ref) {
+  return ref.watch(configuracionRepositoryProvider).listTiposCompra();
 });
 
 final tiposGastoProvider = FutureProvider<List<TipoGasto>>((ref) {

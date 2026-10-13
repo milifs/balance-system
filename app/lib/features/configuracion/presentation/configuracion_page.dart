@@ -10,6 +10,7 @@ import 'sections/cortes_section.dart';
 import 'sections/medios_pago_section.dart';
 import 'sections/permisos_cajera_section.dart';
 import 'sections/sucursales_section.dart';
+import 'sections/tipos_compra_section.dart';
 import 'sections/tipos_gasto_section.dart';
 
 class ConfiguracionPage extends ConsumerStatefulWidget {
@@ -34,6 +35,8 @@ class _ConfiguracionPageState extends ConsumerState<ConfiguracionPage> {
         return const CortesSection();
       case '$rutaConfiguracion/medios-pago':
         return const MediosPagoSection();
+      case '$rutaConfiguracion/tipos-compra':
+        return const TiposCompraSection();
       case '$rutaConfiguracion/tipos-gasto':
         return const TiposGastoSection();
       case '$rutaConfiguracion/permisos':
