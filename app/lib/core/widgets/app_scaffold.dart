@@ -89,7 +89,9 @@ class AppScaffold extends ConsumerWidget {
           ),
           const VerticalDivider(width: 1, color: Color(0x11000000)),
           Expanded(
-            child: Container(
+            // Material (y no Container) para que los ListTile de las páginas
+            // puedan pintar su fondo y su ink splash sobre el crema.
+            child: Material(
               color: AppColors.crema,
               child: child,
             ),
