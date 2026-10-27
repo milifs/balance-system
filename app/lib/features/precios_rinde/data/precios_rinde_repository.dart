@@ -18,6 +18,25 @@ class RotacionPrecio {
   final double? nuevoPenultimo;
 }
 
+/// Rotación de un corte, o `null` si el precio no cambió.
+///
+/// Guardar la lista sin tocar un precio no tiene que rotarlo: si lo rotara,
+/// el actual se copiaría encima del último y se perdería un escalón del
+/// historial. Dos "Guardar" seguidos dejaban los tres precios iguales.
+RotacionPrecio? rotacionSiCambio({
+  required String corteId,
+  required double? nuevo,
+  required Precio? precio,
+}) {
+  if (nuevo == null || nuevo == precio?.actual) return null;
+  return RotacionPrecio(
+    corteId: corteId,
+    nuevoActual: nuevo,
+    nuevoUltimo: precio?.actual,
+    nuevoPenultimo: precio?.ultimo,
+  );
+}
+
 /// Acceso a la tabla `precios` (un registro por corte).
 class PreciosRindeRepository {
   PreciosRindeRepository(this._db);

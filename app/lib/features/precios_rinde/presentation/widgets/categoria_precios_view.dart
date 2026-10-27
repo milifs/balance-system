@@ -94,15 +94,14 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
   Future<void> _guardar() async {
     setState(() => _guardando = true);
     try {
+      // Solo los cortes cuyo precio cambió: el campo vacío o repetido deja el
+      // corte como está, sin rotarle el historial.
       final rotaciones = <RotacionPrecio>[
         for (final c in widget.cortes)
-          RotacionPrecio(
+          ?rotacionSiCambio(
             corteId: c.id,
-            // Si el campo quedó vacío, se mantiene el actual.
-            nuevoActual:
-                _parse(_nuevo[c.id]?.text ?? '') ?? widget.precios[c.id]?.actual,
-            nuevoUltimo: widget.precios[c.id]?.actual,
-            nuevoPenultimo: widget.precios[c.id]?.ultimo,
+            nuevo: _parse(_nuevo[c.id]?.text ?? ''),
+            precio: widget.precios[c.id],
           ),
       ];
       final kgrCambiados = {
@@ -116,7 +115,9 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
       if (kgrCambiados.isNotEmpty) ref.invalidate(cortesProvider);
       if (mounted) {
         _calc.clear();
-        _snack('Precios de ${widget.categoria.nombre} guardados.');
+        _snack(rotaciones.isEmpty && kgrCambiados.isEmpty
+            ? 'No había cambios para guardar.'
+            : 'Precios de ${widget.categoria.nombre} guardados.');
       }
     } catch (e) {
       if (mounted) _snack('No se pudo guardar: $e', error: true);
