@@ -9,6 +9,7 @@ import '../../../../core/models/precio.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../configuracion/application/configuracion_providers.dart';
 import '../../application/precios_rinde_providers.dart';
+import '../../domain/rinde_kgr.dart';
 import '../../data/precios_rinde_repository.dart';
 
 /// Vista de una categoría: panel de precios (izq) + panel de rinde (der).
@@ -448,6 +449,11 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
   }) {
     final positivo = (resultado ?? 0) >= 0;
     final colorRes = positivo ? AppColors.verde : AppColors.rojoNegativo;
+    final piezaKg = widget.categoria.piezaBaseKg;
+    final merma = mermaKg(kgRindeTotal: kgTotal, piezaBaseKg: piezaKg);
+    final mermaPorcentaje =
+        mermaPct(kgRindeTotal: kgTotal, piezaBaseKg: piezaKg);
+    final aviso = avisoDeKgr(kgRindeTotal: kgTotal, piezaBaseKg: piezaKg);
 
     Widget fila(String label, String value, {Color? color, bool bold = false}) =>
         Padding(
@@ -473,6 +479,15 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
       child: Column(
         children: [
           fila('Kg Rinde total', Fmt.kg(kgTotal)),
+          if (piezaKg != null) ...[
+            fila('Kg de la pieza base', Fmt.kg(piezaKg)),
+            fila(
+              'Merma del despiece',
+              '${Fmt.kg(merma!)}'
+                  '${mermaPorcentaje == null ? '' : ' · ${Fmt.pct(mermaPorcentaje.roundToDouble())}'}',
+              color: aviso == null ? null : AppColors.rojoNegativo,
+            ),
+          ],
           fila('Ingreso del despiece', Fmt.moneda(ingreso)),
           fila('Costo pieza base',
               costo == null ? 'Sin pieza base' : Fmt.moneda(costo)),
@@ -482,6 +497,22 @@ class _CategoriaPreciosViewState extends ConsumerState<CategoriaPreciosView> {
               color: resultado == null ? null : colorRes, bold: true),
           fila('% de rinde', pct == null ? '—' : Fmt.pct(pct.roundToDouble()),
               color: pct == null ? null : colorRes, bold: true),
+          if (aviso != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.warning_amber_rounded,
+                    size: 18, color: AppColors.rojoNegativo),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(aviso,
+                      style: const TextStyle(
+                          color: AppColors.rojoNegativo, fontSize: 13)),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
