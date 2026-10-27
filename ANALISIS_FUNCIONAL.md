@@ -228,6 +228,7 @@ La migración existente (`supabase/migrations/20260527000000_initial_schema.sql`
 - ✅ Medios de pago: efectivo, transferencia, crédito, débito (cada uno con su % de retención).
 - ✅ Balance: se completa automáticamente desde Carga y Pesaje; Compras se muestra como total.
 - ✅ Mermas: no se registran aparte; quedan capturadas en el stock final medido en el pesaje.
+- ✅ Devoluciones y notas de crédito: **no se contemplan**. Lo que se carga acá ya es el dato final —sale de otro sistema, neteado—, así que ventas, compras y gastos son siempre montos positivos (`check (monto >= 0)`).
 
 **Todavía pendientes:**
 - Ninguna. El análisis funcional está **cerrado**. (El % de retención de transferencia se define en Configuración cuando el admin lo tenga; no bloquea el diseño.)
