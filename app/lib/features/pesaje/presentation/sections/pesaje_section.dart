@@ -83,7 +83,7 @@ class PesajeSection extends ConsumerWidget {
       for (final corte in delaCat) {
         final pc = pesajes[corte.id];
         final kg = pc?.totalKg ?? 0;
-        final precio = _precioCorte(corte, precios[corte.id]);
+        final precio = _precioCorte(pc, precios[corte.id]);
         final valor = precio == null ? null : kg * precio;
         totalKg += kg;
         if (valor != null) totalValor += valor;
@@ -127,8 +127,12 @@ class PesajeSection extends ConsumerWidget {
     );
   }
 
-  /// Precio unitario a usar: el vigente en la Lista de Precios.
-  static double? _precioCorte(Corte corte, Precio? precio) => precio?.actual;
+  /// Precio unitario a usar: el que quedó guardado al pesar el corte y, para
+  /// los que todavía no se pesaron, el vigente en la Lista de Precios. Así el
+  /// cuadro muestra la misma valorización que el balance, que también congela
+  /// el precio del momento.
+  static double? _precioCorte(PesajeConItems? pc, Precio? precio) =>
+      pc?.pesaje.precioSnapshot ?? precio?.actual;
 
   Future<void> _editarCorte(
     BuildContext context,

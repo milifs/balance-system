@@ -134,7 +134,7 @@ Seed: Rentas, Contador, Gastos varios, Saldos sueldos, Luz, Agua, Internet.
 | creado_at | timestamptz | |
 
 #### `ventas` *(NUEVO)*
-| id | periodo_id FK | sucursal_id FK | fecha | medio_pago_id FK | monto | creado_at |
+| id | periodo_id FK | sucursal_id FK | fecha | medio_pago_id FK | monto | **retencion_pct** | creado_at |
 
 #### `compras` *(NUEVO)*
 | id | periodo_id FK | sucursal_id FK | fecha | tipo_compra (`Carne`\|`Cerdo`\|`Pollo`) | monto | proveedor (opcional) | creado_at |
@@ -156,7 +156,7 @@ Seed: Rentas, Contador, Gastos varios, Saldos sueldos, Luz, Agua, Internet.
 
 | Objeto | Tipo | Qué calcula |
 |---|---|---|
-| `v_valor_pesaje` | vista | Por pesaje: `Σ(kg) × precio` según `valoriza_a` (venta usa `precios.precio_actual`; costo usa `cortes.costo_manual`). Totales por corte/categoría/sucursal. |
+| `v_valor_pesaje` | vista | Por pesaje: `Σ(kg) × precio`, con el precio congelado en `pesajes.precio_snapshot` (si falta, el de la Lista de Precios). Totales por corte/categoría/sucursal. |
 | `v_rinde_actual` | vista *(ya existe, se ajusta)* | Por corte: `kgr_rinde × precio_actual`; agrega al pie **Ingreso del despiece**, **Costo pieza**, **Resultado $** y **% de rinde**. |
 | `fn_balance_periodo(periodo_id)` | función/RPC | Ventas brutas y netas por medio, total compras, stock inicial y final (del pesaje encadenado), CMV, Σ gastos, Ganancia y Utilidad neta %. |
 | `fn_consolidado(fecha_ini, fecha_fin)` | función/RPC | Suma los balances de las 4 sucursales para el rango. |
@@ -167,7 +167,7 @@ stock_inicial     = pesaje apertura del período
                     → si no hay, pesaje cierre del período anterior (encadenado)
                     → si no hay, periodos.stock_inicial_manual (primer período)
 CMV               = stock_inicial + compras − stock_final
-venta_neta_medio  = monto × (1 − retencion_pct/100)
+venta_neta_medio  = monto × (1 − ventas.retencion_pct/100)   ← la del momento de la carga
 ganancia          = Σ venta_neta − CMV − Σ gastos
 utilidad_neta_pct = ganancia / Σ venta_neta
 resultado_rinde   = Σ(kgr × precio_actual) − (pieza_base_kg × pieza_base_costo_kg)

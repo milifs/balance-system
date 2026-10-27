@@ -285,11 +285,17 @@ class _BalanceDetalle extends ConsumerWidget {
         final mediosById = {for (final m in medios) m.id: m};
         final tiposById = {for (final t in tipos) t.id: t};
 
-        // Ventas agrupadas por medio (bruto + neto).
+        // Ventas agrupadas por medio (bruto + neto). El neto sale de la
+        // retención guardada en cada venta, que puede no ser la que el medio
+        // de pago tiene hoy.
         final brutoPorMedio = <String, double>{};
+        final netoPorMedio = <String, double>{};
         for (final v in ventas) {
+          final actual = mediosById[v.medioPagoId]?.retencionPct ?? 0;
           brutoPorMedio[v.medioPagoId] =
               (brutoPorMedio[v.medioPagoId] ?? 0) + v.monto;
+          netoPorMedio[v.medioPagoId] =
+              (netoPorMedio[v.medioPagoId] ?? 0) + v.netoCon(actual);
         }
         final filasMedio = brutoPorMedio.entries.toList()
           ..sort((a, b) => (mediosById[a.key]?.orden ?? 0)
@@ -322,17 +328,12 @@ class _BalanceDetalle extends ConsumerWidget {
 
                     // --- Ventas por medio ---
                     for (final e in filasMedio)
-                      Builder(builder: (_) {
-                        final m = mediosById[e.key];
-                        final ret = m?.retencionPct ?? 0;
-                        final neto = e.value * (1 - ret / 100);
-                        return _Fila(
-                          label: m?.nombre ?? 'Medio desconocido',
-                          bruto: Fmt.moneda(e.value),
-                          neto: Fmt.moneda(neto),
-                          indent: true,
-                        );
-                      }),
+                      _Fila(
+                        label: mediosById[e.key]?.nombre ?? 'Medio desconocido',
+                        bruto: Fmt.moneda(e.value),
+                        neto: Fmt.moneda(netoPorMedio[e.key] ?? 0),
+                        indent: true,
+                      ),
                     _Fila(
                       label: 'Total ventas',
                       bruto: Fmt.moneda(b.ventasBruto),

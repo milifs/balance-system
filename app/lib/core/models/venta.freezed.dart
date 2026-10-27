@@ -16,7 +16,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Venta {
 
- String get id; String get periodoId; String get sucursalId; DateTime get fecha; String get medioPagoId; double get monto; DateTime? get creadoAt;
+ String get id; String get periodoId; String get sucursalId; DateTime get fecha; String get medioPagoId; double get monto;/// Retención del medio de pago al momento de cargar la venta. La completa
+/// el trigger `trg_ventas_retencion`; el balance calcula el neto con esta
+/// y no con el % que el medio tenga hoy.
+ double? get retencionPct; DateTime? get creadoAt;
 /// Create a copy of Venta
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +32,16 @@ $VentaCopyWith<Venta> get copyWith => _$VentaCopyWithImpl<Venta>(this as Venta, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Venta&&(identical(other.id, id) || other.id == id)&&(identical(other.periodoId, periodoId) || other.periodoId == periodoId)&&(identical(other.sucursalId, sucursalId) || other.sucursalId == sucursalId)&&(identical(other.fecha, fecha) || other.fecha == fecha)&&(identical(other.medioPagoId, medioPagoId) || other.medioPagoId == medioPagoId)&&(identical(other.monto, monto) || other.monto == monto)&&(identical(other.creadoAt, creadoAt) || other.creadoAt == creadoAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Venta&&(identical(other.id, id) || other.id == id)&&(identical(other.periodoId, periodoId) || other.periodoId == periodoId)&&(identical(other.sucursalId, sucursalId) || other.sucursalId == sucursalId)&&(identical(other.fecha, fecha) || other.fecha == fecha)&&(identical(other.medioPagoId, medioPagoId) || other.medioPagoId == medioPagoId)&&(identical(other.monto, monto) || other.monto == monto)&&(identical(other.retencionPct, retencionPct) || other.retencionPct == retencionPct)&&(identical(other.creadoAt, creadoAt) || other.creadoAt == creadoAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,periodoId,sucursalId,fecha,medioPagoId,monto,creadoAt);
+int get hashCode => Object.hash(runtimeType,id,periodoId,sucursalId,fecha,medioPagoId,monto,retencionPct,creadoAt);
 
 @override
 String toString() {
-  return 'Venta(id: $id, periodoId: $periodoId, sucursalId: $sucursalId, fecha: $fecha, medioPagoId: $medioPagoId, monto: $monto, creadoAt: $creadoAt)';
+  return 'Venta(id: $id, periodoId: $periodoId, sucursalId: $sucursalId, fecha: $fecha, medioPagoId: $medioPagoId, monto: $monto, retencionPct: $retencionPct, creadoAt: $creadoAt)';
 }
 
 
@@ -49,7 +52,7 @@ abstract mixin class $VentaCopyWith<$Res>  {
   factory $VentaCopyWith(Venta value, $Res Function(Venta) _then) = _$VentaCopyWithImpl;
 @useResult
 $Res call({
- String id, String periodoId, String sucursalId, DateTime fecha, String medioPagoId, double monto, DateTime? creadoAt
+ String id, String periodoId, String sucursalId, DateTime fecha, String medioPagoId, double monto, double? retencionPct, DateTime? creadoAt
 });
 
 
@@ -66,7 +69,7 @@ class _$VentaCopyWithImpl<$Res>
 
 /// Create a copy of Venta
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? periodoId = null,Object? sucursalId = null,Object? fecha = null,Object? medioPagoId = null,Object? monto = null,Object? creadoAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? periodoId = null,Object? sucursalId = null,Object? fecha = null,Object? medioPagoId = null,Object? monto = null,Object? retencionPct = freezed,Object? creadoAt = freezed,}) {
   return _then(Venta(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,periodoId: null == periodoId ? _self.periodoId : periodoId // ignore: cast_nullable_to_non_nullable
@@ -74,7 +77,8 @@ as String,sucursalId: null == sucursalId ? _self.sucursalId : sucursalId // igno
 as String,fecha: null == fecha ? _self.fecha : fecha // ignore: cast_nullable_to_non_nullable
 as DateTime,medioPagoId: null == medioPagoId ? _self.medioPagoId : medioPagoId // ignore: cast_nullable_to_non_nullable
 as String,monto: null == monto ? _self.monto : monto // ignore: cast_nullable_to_non_nullable
-as double,creadoAt: freezed == creadoAt ? _self.creadoAt : creadoAt // ignore: cast_nullable_to_non_nullable
+as double,retencionPct: freezed == retencionPct ? _self.retencionPct : retencionPct // ignore: cast_nullable_to_non_nullable
+as double?,creadoAt: freezed == creadoAt ? _self.creadoAt : creadoAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }
@@ -160,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  String medioPagoId,  double monto,  DateTime? creadoAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  String medioPagoId,  double monto,  double? retencionPct,  DateTime? creadoAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Venta() when $default != null:
-return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.medioPagoId,_that.monto,_that.creadoAt);case _:
+return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.medioPagoId,_that.monto,_that.retencionPct,_that.creadoAt);case _:
   return orElse();
 
 }
@@ -181,10 +185,10 @@ return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.medi
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  String medioPagoId,  double monto,  DateTime? creadoAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  String medioPagoId,  double monto,  double? retencionPct,  DateTime? creadoAt)  $default,) {final _that = this;
 switch (_that) {
 case _Venta():
-return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.medioPagoId,_that.monto,_that.creadoAt);case _:
+return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.medioPagoId,_that.monto,_that.retencionPct,_that.creadoAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +205,10 @@ return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.medi
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  String medioPagoId,  double monto,  DateTime? creadoAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String periodoId,  String sucursalId,  DateTime fecha,  String medioPagoId,  double monto,  double? retencionPct,  DateTime? creadoAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Venta() when $default != null:
-return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.medioPagoId,_that.monto,_that.creadoAt);case _:
+return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.medioPagoId,_that.monto,_that.retencionPct,_that.creadoAt);case _:
   return null;
 
 }
@@ -216,7 +220,7 @@ return $default(_that.id,_that.periodoId,_that.sucursalId,_that.fecha,_that.medi
 @JsonSerializable()
 
 class _Venta implements Venta {
-  const _Venta({required this.id, required this.periodoId, required this.sucursalId, required this.fecha, required this.medioPagoId, this.monto = 0, this.creadoAt});
+  const _Venta({required this.id, required this.periodoId, required this.sucursalId, required this.fecha, required this.medioPagoId, this.monto = 0, this.retencionPct, this.creadoAt});
   factory _Venta.fromJson(Map<String, dynamic> json) => _$VentaFromJson(json);
 
 @override final  String id;
@@ -225,6 +229,10 @@ class _Venta implements Venta {
 @override final  DateTime fecha;
 @override final  String medioPagoId;
 @override@JsonKey() final  double monto;
+/// Retención del medio de pago al momento de cargar la venta. La completa
+/// el trigger `trg_ventas_retencion`; el balance calcula el neto con esta
+/// y no con el % que el medio tenga hoy.
+@override final  double? retencionPct;
 @override final  DateTime? creadoAt;
 
 /// Create a copy of Venta
@@ -240,16 +248,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Venta&&(identical(other.id, id) || other.id == id)&&(identical(other.periodoId, periodoId) || other.periodoId == periodoId)&&(identical(other.sucursalId, sucursalId) || other.sucursalId == sucursalId)&&(identical(other.fecha, fecha) || other.fecha == fecha)&&(identical(other.medioPagoId, medioPagoId) || other.medioPagoId == medioPagoId)&&(identical(other.monto, monto) || other.monto == monto)&&(identical(other.creadoAt, creadoAt) || other.creadoAt == creadoAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Venta&&(identical(other.id, id) || other.id == id)&&(identical(other.periodoId, periodoId) || other.periodoId == periodoId)&&(identical(other.sucursalId, sucursalId) || other.sucursalId == sucursalId)&&(identical(other.fecha, fecha) || other.fecha == fecha)&&(identical(other.medioPagoId, medioPagoId) || other.medioPagoId == medioPagoId)&&(identical(other.monto, monto) || other.monto == monto)&&(identical(other.retencionPct, retencionPct) || other.retencionPct == retencionPct)&&(identical(other.creadoAt, creadoAt) || other.creadoAt == creadoAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,periodoId,sucursalId,fecha,medioPagoId,monto,creadoAt);
+int get hashCode => Object.hash(runtimeType,id,periodoId,sucursalId,fecha,medioPagoId,monto,retencionPct,creadoAt);
 
 @override
 String toString() {
-  return 'Venta(id: $id, periodoId: $periodoId, sucursalId: $sucursalId, fecha: $fecha, medioPagoId: $medioPagoId, monto: $monto, creadoAt: $creadoAt)';
+  return 'Venta(id: $id, periodoId: $periodoId, sucursalId: $sucursalId, fecha: $fecha, medioPagoId: $medioPagoId, monto: $monto, retencionPct: $retencionPct, creadoAt: $creadoAt)';
 }
 
 
@@ -260,7 +268,7 @@ abstract mixin class _$VentaCopyWith<$Res> implements $VentaCopyWith<$Res> {
   factory _$VentaCopyWith(_Venta value, $Res Function(_Venta) _then) = __$VentaCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String periodoId, String sucursalId, DateTime fecha, String medioPagoId, double monto, DateTime? creadoAt
+ String id, String periodoId, String sucursalId, DateTime fecha, String medioPagoId, double monto, double? retencionPct, DateTime? creadoAt
 });
 
 
@@ -277,7 +285,7 @@ class __$VentaCopyWithImpl<$Res>
 
 /// Create a copy of Venta
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? periodoId = null,Object? sucursalId = null,Object? fecha = null,Object? medioPagoId = null,Object? monto = null,Object? creadoAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? periodoId = null,Object? sucursalId = null,Object? fecha = null,Object? medioPagoId = null,Object? monto = null,Object? retencionPct = freezed,Object? creadoAt = freezed,}) {
   return _then(_Venta(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,periodoId: null == periodoId ? _self.periodoId : periodoId // ignore: cast_nullable_to_non_nullable
@@ -285,7 +293,8 @@ as String,sucursalId: null == sucursalId ? _self.sucursalId : sucursalId // igno
 as String,fecha: null == fecha ? _self.fecha : fecha // ignore: cast_nullable_to_non_nullable
 as DateTime,medioPagoId: null == medioPagoId ? _self.medioPagoId : medioPagoId // ignore: cast_nullable_to_non_nullable
 as String,monto: null == monto ? _self.monto : monto // ignore: cast_nullable_to_non_nullable
-as double,creadoAt: freezed == creadoAt ? _self.creadoAt : creadoAt // ignore: cast_nullable_to_non_nullable
+as double,retencionPct: freezed == retencionPct ? _self.retencionPct : retencionPct // ignore: cast_nullable_to_non_nullable
+as double?,creadoAt: freezed == creadoAt ? _self.creadoAt : creadoAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
 }
