@@ -163,6 +163,9 @@ Seed: Rentas, Contador, Gastos varios, Saldos sueldos, Luz, Agua, Internet.
 
 **Fórmulas implementadas** (idénticas al §5 del análisis funcional):
 ```
+stock_inicial     = pesaje apertura del período
+                    → si no hay, pesaje cierre del período anterior (encadenado)
+                    → si no hay, periodos.stock_inicial_manual (primer período)
 CMV               = stock_inicial + compras − stock_final
 venta_neta_medio  = monto × (1 − retencion_pct/100)
 ganancia          = Σ venta_neta − CMV − Σ gastos
