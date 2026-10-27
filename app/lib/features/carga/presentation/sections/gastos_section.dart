@@ -146,8 +146,7 @@ class _GastoFormState extends ConsumerState<_GastoForm> {
   @override
   void initState() {
     super.initState();
-    final hoy = DateTime.now();
-    _fecha = hoy.isAfter(widget.periodo.fechaFin) ? widget.periodo.fechaFin : hoy;
+    _fecha = fechaDentroDelPeriodo(widget.periodo, DateTime.now());
     _ordenar();
   }
 
@@ -182,8 +181,8 @@ class _GastoFormState extends ConsumerState<_GastoForm> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _fecha,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
+      firstDate: widget.periodo.fechaInicio,
+      lastDate: widget.periodo.fechaFin,
     );
     if (picked != null) setState(() => _fecha = picked);
   }

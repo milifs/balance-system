@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/formatters/formatters.dart';
 import '../../../../core/models/periodo.dart';
 import '../../application/carga_providers.dart';
+import '../../domain/periodo_encadenado.dart';
 import 'carga_ui.dart';
 
 /// Alta/edición de un período de una sucursal.
@@ -31,9 +32,19 @@ class _PeriodoDialogState extends ConsumerState<PeriodoDialog> {
   void initState() {
     super.initState();
     final p = widget.periodo;
-    final hoy = DateTime.now();
-    _inicio = p?.fechaInicio ?? DateTime(hoy.year, hoy.month, 1);
-    _fin = p?.fechaFin ?? hoy;
+    final hoy = soloFecha(DateTime.now());
+    if (p != null) {
+      _inicio = p.fechaInicio;
+      _fin = p.fechaFin;
+    } else {
+      // Un período nuevo arranca el día siguiente al cierre del último, que es
+      // la única fecha de inicio que el encadenado acepta.
+      final ultimo = periodoAnterior(_otrosPeriodos(), hoy);
+      _inicio = ultimo == null
+          ? DateTime(hoy.year, hoy.month, 1)
+          : diaSiguiente(ultimo.fechaFin);
+      _fin = hoy.isBefore(_inicio) ? _inicio : hoy;
+    }
     _stockInicial = TextEditingController(
       text: p?.stockInicialManual == null
           ? ''
@@ -49,6 +60,16 @@ class _PeriodoDialogState extends ConsumerState<PeriodoDialog> {
 
   static String _trim(double v) =>
       v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
+
+  /// Los períodos de la sucursal, sin contar el que se está editando.
+  List<Periodo> _otrosPeriodos() {
+    final todos = ref.read(periodosProvider(widget.sucursalId)).asData?.value ??
+        const <Periodo>[];
+    return [
+      for (final p in todos)
+        if (p.id != widget.periodo?.id) p,
+    ];
+  }
 
   Future<void> _elegirFecha({required bool esInicio}) async {
     final actual = esInicio ? _inicio : _fin;
@@ -71,9 +92,13 @@ class _PeriodoDialogState extends ConsumerState<PeriodoDialog> {
 
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_fin.isBefore(_inicio)) {
-      mostrarMensaje(context, 'La fecha de cierre no puede ser anterior al inicio.',
-          error: true);
+    final error = errorDeEncadenado(
+      otros: _otrosPeriodos(),
+      inicio: _inicio,
+      fin: _fin,
+    );
+    if (error != null) {
+      mostrarMensaje(context, error, error: true);
       return;
     }
     final stock =

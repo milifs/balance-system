@@ -133,6 +133,11 @@ Seed: Rentas, Contador, Gastos varios, Saldos sueldos, Luz, Agua, Internet.
 | stock_inicial_manual | decimal(14,2) | solo primer período (sin pesaje anterior) |
 | creado_at | timestamptz | |
 
+> Los períodos de una sucursal van pegados: `fecha_inicio` es el día posterior
+> al `fecha_fin` del anterior, sin solapes ni huecos. Lo valida el trigger
+> `trg_periodos_encadenados`, que solo mira cuando las fechas cambian, para no
+> romper el cierre/reapertura de los períodos que ya estaban cargados.
+
 #### `ventas` *(NUEVO)*
 | id | periodo_id FK | sucursal_id FK | fecha | medio_pago_id FK | monto | **retencion_pct** | creado_at |
 

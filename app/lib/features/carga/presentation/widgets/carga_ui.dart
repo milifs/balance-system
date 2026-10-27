@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/formatters/formatters.dart';
+import '../../../../core/models/periodo.dart';
 import '../../../../core/theme/app_theme.dart';
 
 /// Muestra un SnackBar de éxito/error.
@@ -12,6 +13,16 @@ void mostrarMensaje(BuildContext context, String texto, {bool error = false}) {
       content: Text(texto),
       backgroundColor: error ? AppColors.rojoNegativo : AppColors.verde,
     ));
+}
+
+/// Acota una fecha al rango del período. Un movimiento cargado en un período
+/// no puede tener una fecha de afuera: la suma del balance va por período, así
+/// que una venta de marzo guardada en el período de febrero entra igual al
+/// resultado de febrero.
+DateTime fechaDentroDelPeriodo(Periodo periodo, DateTime fecha) {
+  if (fecha.isBefore(periodo.fechaInicio)) return periodo.fechaInicio;
+  if (fecha.isAfter(periodo.fechaFin)) return periodo.fechaFin;
+  return fecha;
 }
 
 /// Estado de carga/error/vacío estándar para un AsyncValue de lista.
