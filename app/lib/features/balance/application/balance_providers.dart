@@ -22,3 +22,12 @@ final consolidadoProvider =
     FutureProvider.family<Consolidado, RangoFechas>((ref, rango) {
   return ref.watch(balanceRepositoryProvider).consolidado(rango.ini, rango.fin);
 });
+
+/// Qué aportó cada sucursal a ese consolidado (las que no aportaron nada
+/// vienen con `periodos` en 0).
+final consolidadoDetalleProvider =
+    FutureProvider.family<List<ConsolidadoSucursal>, RangoFechas>((ref, rango) {
+  return ref
+      .watch(balanceRepositoryProvider)
+      .consolidadoDetalle(rango.ini, rango.fin);
+});

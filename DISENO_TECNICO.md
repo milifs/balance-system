@@ -159,7 +159,8 @@ Seed: Rentas, Contador, Gastos varios, Saldos sueldos, Luz, Agua, Internet.
 | `v_valor_pesaje` | vista | Por pesaje: `Σ(kg) × precio`, con el precio congelado en `pesajes.precio_snapshot` (si falta, el de la Lista de Precios). Totales por corte/categoría/sucursal. |
 | `v_rinde_actual` | vista *(ya existe, se ajusta)* | Por corte: `kgr_rinde × precio_actual`; agrega al pie **Ingreso del despiece**, **Costo pieza**, **Resultado $** y **% de rinde**. |
 | `fn_balance_periodo(periodo_id)` | función/RPC | Ventas brutas y netas por medio, total compras, stock inicial y final (del pesaje encadenado), CMV, Σ gastos, Ganancia y Utilidad neta %. |
-| `fn_consolidado(fecha_ini, fecha_fin)` | función/RPC | Suma los balances de las 4 sucursales para el rango. |
+| `fn_consolidado_detalle(fecha_ini, fecha_fin)` | función/RPC | Una fila por sucursal activa con lo que aportó al rango y cuántos períodos cerrados fueron; las que no aportaron ninguno vienen con `periodos = 0`. |
+| `fn_consolidado(fecha_ini, fecha_fin)` | función/RPC | Suma `fn_consolidado_detalle`, para que el total y el desglose no cuenten cosas distintas. |
 
 **Fórmulas implementadas** (idénticas al §5 del análisis funcional):
 ```

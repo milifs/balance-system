@@ -40,3 +40,26 @@ abstract class Consolidado with _$Consolidado {
   factory Consolidado.fromJson(Map<String, dynamic> json) =>
       _$ConsolidadoFromJson(json);
 }
+
+/// Una fila de `fn_consolidado_detalle(fecha_ini, fecha_fin)`: lo que aportó
+/// cada sucursal al consolidado y con cuántos períodos. Las sucursales que no
+/// aportaron ninguno vienen igual, con `periodos` en 0, para que la pantalla
+/// pueda mostrar que quedaron afuera en vez de omitirlas.
+@freezed
+abstract class ConsolidadoSucursal with _$ConsolidadoSucursal {
+  const factory ConsolidadoSucursal({
+    required String sucursalId,
+    required String sucursal,
+    @Default(0) int orden,
+    @Default(0) int periodos,
+    @Default(0) double ventasBruto,
+    @Default(0) double ventasNeto,
+    @Default(0) double comprasTotal,
+    @Default(0) double cmv,
+    @Default(0) double gastosTotal,
+    @Default(0) double ganancia,
+  }) = _ConsolidadoSucursal;
+
+  factory ConsolidadoSucursal.fromJson(Map<String, dynamic> json) =>
+      _$ConsolidadoSucursalFromJson(json);
+}

@@ -3,7 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/models/balance.dart';
 
 /// Acceso a los cálculos de balance. Las fórmulas viven en Postgres
-/// (`fn_balance_periodo`, `fn_consolidado`): el cliente solo las invoca.
+/// (`fn_balance_periodo`, `fn_consolidado`, `fn_consolidado_detalle`): el
+/// cliente solo las invoca.
 /// El cierre/reapertura de un período cambia `periodos.estado`.
 class BalanceRepository {
   BalanceRepository(this._db);
@@ -33,6 +34,18 @@ class BalanceRepository {
     );
     final rows = (res as List).cast<Map<String, dynamic>>();
     return rows.isEmpty ? const Consolidado() : Consolidado.fromJson(rows.first);
+  }
+
+  /// Detalle del consolidado: una fila por sucursal activa, incluidas las que
+  /// no aportaron ningún período cerrado en el rango.
+  Future<List<ConsolidadoSucursal>> consolidadoDetalle(
+      DateTime ini, DateTime fin) async {
+    final res = await _db.rpc<dynamic>(
+      'fn_consolidado_detalle',
+      params: {'p_ini': _fecha(ini), 'p_fin': _fecha(fin)},
+    );
+    final rows = (res as List).cast<Map<String, dynamic>>();
+    return rows.map(ConsolidadoSucursal.fromJson).toList();
   }
 
   /// Cierra el período (pasa a solo lectura y entra al historial).

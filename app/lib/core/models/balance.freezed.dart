@@ -577,4 +577,294 @@ as double,
 
 }
 
+
+/// @nodoc
+mixin _$ConsolidadoSucursal {
+
+ String get sucursalId; String get sucursal; int get orden; int get periodos; double get ventasBruto; double get ventasNeto; double get comprasTotal; double get cmv; double get gastosTotal; double get ganancia;
+/// Create a copy of ConsolidadoSucursal
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ConsolidadoSucursalCopyWith<ConsolidadoSucursal> get copyWith => _$ConsolidadoSucursalCopyWithImpl<ConsolidadoSucursal>(this as ConsolidadoSucursal, _$identity);
+
+  /// Serializes this ConsolidadoSucursal to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ConsolidadoSucursal&&(identical(other.sucursalId, sucursalId) || other.sucursalId == sucursalId)&&(identical(other.sucursal, sucursal) || other.sucursal == sucursal)&&(identical(other.orden, orden) || other.orden == orden)&&(identical(other.periodos, periodos) || other.periodos == periodos)&&(identical(other.ventasBruto, ventasBruto) || other.ventasBruto == ventasBruto)&&(identical(other.ventasNeto, ventasNeto) || other.ventasNeto == ventasNeto)&&(identical(other.comprasTotal, comprasTotal) || other.comprasTotal == comprasTotal)&&(identical(other.cmv, cmv) || other.cmv == cmv)&&(identical(other.gastosTotal, gastosTotal) || other.gastosTotal == gastosTotal)&&(identical(other.ganancia, ganancia) || other.ganancia == ganancia));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,sucursalId,sucursal,orden,periodos,ventasBruto,ventasNeto,comprasTotal,cmv,gastosTotal,ganancia);
+
+@override
+String toString() {
+  return 'ConsolidadoSucursal(sucursalId: $sucursalId, sucursal: $sucursal, orden: $orden, periodos: $periodos, ventasBruto: $ventasBruto, ventasNeto: $ventasNeto, comprasTotal: $comprasTotal, cmv: $cmv, gastosTotal: $gastosTotal, ganancia: $ganancia)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ConsolidadoSucursalCopyWith<$Res>  {
+  factory $ConsolidadoSucursalCopyWith(ConsolidadoSucursal value, $Res Function(ConsolidadoSucursal) _then) = _$ConsolidadoSucursalCopyWithImpl;
+@useResult
+$Res call({
+ String sucursalId, String sucursal, int orden, int periodos, double ventasBruto, double ventasNeto, double comprasTotal, double cmv, double gastosTotal, double ganancia
+});
+
+
+
+
+}
+/// @nodoc
+class _$ConsolidadoSucursalCopyWithImpl<$Res>
+    implements $ConsolidadoSucursalCopyWith<$Res> {
+  _$ConsolidadoSucursalCopyWithImpl(this._self, this._then);
+
+  final ConsolidadoSucursal _self;
+  final $Res Function(ConsolidadoSucursal) _then;
+
+/// Create a copy of ConsolidadoSucursal
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? sucursalId = null,Object? sucursal = null,Object? orden = null,Object? periodos = null,Object? ventasBruto = null,Object? ventasNeto = null,Object? comprasTotal = null,Object? cmv = null,Object? gastosTotal = null,Object? ganancia = null,}) {
+  return _then(ConsolidadoSucursal(
+sucursalId: null == sucursalId ? _self.sucursalId : sucursalId // ignore: cast_nullable_to_non_nullable
+as String,sucursal: null == sucursal ? _self.sucursal : sucursal // ignore: cast_nullable_to_non_nullable
+as String,orden: null == orden ? _self.orden : orden // ignore: cast_nullable_to_non_nullable
+as int,periodos: null == periodos ? _self.periodos : periodos // ignore: cast_nullable_to_non_nullable
+as int,ventasBruto: null == ventasBruto ? _self.ventasBruto : ventasBruto // ignore: cast_nullable_to_non_nullable
+as double,ventasNeto: null == ventasNeto ? _self.ventasNeto : ventasNeto // ignore: cast_nullable_to_non_nullable
+as double,comprasTotal: null == comprasTotal ? _self.comprasTotal : comprasTotal // ignore: cast_nullable_to_non_nullable
+as double,cmv: null == cmv ? _self.cmv : cmv // ignore: cast_nullable_to_non_nullable
+as double,gastosTotal: null == gastosTotal ? _self.gastosTotal : gastosTotal // ignore: cast_nullable_to_non_nullable
+as double,ganancia: null == ganancia ? _self.ganancia : ganancia // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ConsolidadoSucursal].
+extension ConsolidadoSucursalPatterns on ConsolidadoSucursal {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ConsolidadoSucursal value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ConsolidadoSucursal() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ConsolidadoSucursal value)  $default,){
+final _that = this;
+switch (_that) {
+case _ConsolidadoSucursal():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ConsolidadoSucursal value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ConsolidadoSucursal() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String sucursalId,  String sucursal,  int orden,  int periodos,  double ventasBruto,  double ventasNeto,  double comprasTotal,  double cmv,  double gastosTotal,  double ganancia)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ConsolidadoSucursal() when $default != null:
+return $default(_that.sucursalId,_that.sucursal,_that.orden,_that.periodos,_that.ventasBruto,_that.ventasNeto,_that.comprasTotal,_that.cmv,_that.gastosTotal,_that.ganancia);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String sucursalId,  String sucursal,  int orden,  int periodos,  double ventasBruto,  double ventasNeto,  double comprasTotal,  double cmv,  double gastosTotal,  double ganancia)  $default,) {final _that = this;
+switch (_that) {
+case _ConsolidadoSucursal():
+return $default(_that.sucursalId,_that.sucursal,_that.orden,_that.periodos,_that.ventasBruto,_that.ventasNeto,_that.comprasTotal,_that.cmv,_that.gastosTotal,_that.ganancia);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String sucursalId,  String sucursal,  int orden,  int periodos,  double ventasBruto,  double ventasNeto,  double comprasTotal,  double cmv,  double gastosTotal,  double ganancia)?  $default,) {final _that = this;
+switch (_that) {
+case _ConsolidadoSucursal() when $default != null:
+return $default(_that.sucursalId,_that.sucursal,_that.orden,_that.periodos,_that.ventasBruto,_that.ventasNeto,_that.comprasTotal,_that.cmv,_that.gastosTotal,_that.ganancia);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ConsolidadoSucursal implements ConsolidadoSucursal {
+  const _ConsolidadoSucursal({required this.sucursalId, required this.sucursal, this.orden = 0, this.periodos = 0, this.ventasBruto = 0, this.ventasNeto = 0, this.comprasTotal = 0, this.cmv = 0, this.gastosTotal = 0, this.ganancia = 0});
+  factory _ConsolidadoSucursal.fromJson(Map<String, dynamic> json) => _$ConsolidadoSucursalFromJson(json);
+
+@override final  String sucursalId;
+@override final  String sucursal;
+@override@JsonKey() final  int orden;
+@override@JsonKey() final  int periodos;
+@override@JsonKey() final  double ventasBruto;
+@override@JsonKey() final  double ventasNeto;
+@override@JsonKey() final  double comprasTotal;
+@override@JsonKey() final  double cmv;
+@override@JsonKey() final  double gastosTotal;
+@override@JsonKey() final  double ganancia;
+
+/// Create a copy of ConsolidadoSucursal
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ConsolidadoSucursalCopyWith<_ConsolidadoSucursal> get copyWith => __$ConsolidadoSucursalCopyWithImpl<_ConsolidadoSucursal>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ConsolidadoSucursalToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ConsolidadoSucursal&&(identical(other.sucursalId, sucursalId) || other.sucursalId == sucursalId)&&(identical(other.sucursal, sucursal) || other.sucursal == sucursal)&&(identical(other.orden, orden) || other.orden == orden)&&(identical(other.periodos, periodos) || other.periodos == periodos)&&(identical(other.ventasBruto, ventasBruto) || other.ventasBruto == ventasBruto)&&(identical(other.ventasNeto, ventasNeto) || other.ventasNeto == ventasNeto)&&(identical(other.comprasTotal, comprasTotal) || other.comprasTotal == comprasTotal)&&(identical(other.cmv, cmv) || other.cmv == cmv)&&(identical(other.gastosTotal, gastosTotal) || other.gastosTotal == gastosTotal)&&(identical(other.ganancia, ganancia) || other.ganancia == ganancia));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,sucursalId,sucursal,orden,periodos,ventasBruto,ventasNeto,comprasTotal,cmv,gastosTotal,ganancia);
+
+@override
+String toString() {
+  return 'ConsolidadoSucursal(sucursalId: $sucursalId, sucursal: $sucursal, orden: $orden, periodos: $periodos, ventasBruto: $ventasBruto, ventasNeto: $ventasNeto, comprasTotal: $comprasTotal, cmv: $cmv, gastosTotal: $gastosTotal, ganancia: $ganancia)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ConsolidadoSucursalCopyWith<$Res> implements $ConsolidadoSucursalCopyWith<$Res> {
+  factory _$ConsolidadoSucursalCopyWith(_ConsolidadoSucursal value, $Res Function(_ConsolidadoSucursal) _then) = __$ConsolidadoSucursalCopyWithImpl;
+@override @useResult
+$Res call({
+ String sucursalId, String sucursal, int orden, int periodos, double ventasBruto, double ventasNeto, double comprasTotal, double cmv, double gastosTotal, double ganancia
+});
+
+
+
+
+}
+/// @nodoc
+class __$ConsolidadoSucursalCopyWithImpl<$Res>
+    implements _$ConsolidadoSucursalCopyWith<$Res> {
+  __$ConsolidadoSucursalCopyWithImpl(this._self, this._then);
+
+  final _ConsolidadoSucursal _self;
+  final $Res Function(_ConsolidadoSucursal) _then;
+
+/// Create a copy of ConsolidadoSucursal
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? sucursalId = null,Object? sucursal = null,Object? orden = null,Object? periodos = null,Object? ventasBruto = null,Object? ventasNeto = null,Object? comprasTotal = null,Object? cmv = null,Object? gastosTotal = null,Object? ganancia = null,}) {
+  return _then(_ConsolidadoSucursal(
+sucursalId: null == sucursalId ? _self.sucursalId : sucursalId // ignore: cast_nullable_to_non_nullable
+as String,sucursal: null == sucursal ? _self.sucursal : sucursal // ignore: cast_nullable_to_non_nullable
+as String,orden: null == orden ? _self.orden : orden // ignore: cast_nullable_to_non_nullable
+as int,periodos: null == periodos ? _self.periodos : periodos // ignore: cast_nullable_to_non_nullable
+as int,ventasBruto: null == ventasBruto ? _self.ventasBruto : ventasBruto // ignore: cast_nullable_to_non_nullable
+as double,ventasNeto: null == ventasNeto ? _self.ventasNeto : ventasNeto // ignore: cast_nullable_to_non_nullable
+as double,comprasTotal: null == comprasTotal ? _self.comprasTotal : comprasTotal // ignore: cast_nullable_to_non_nullable
+as double,cmv: null == cmv ? _self.cmv : cmv // ignore: cast_nullable_to_non_nullable
+as double,gastosTotal: null == gastosTotal ? _self.gastosTotal : gastosTotal // ignore: cast_nullable_to_non_nullable
+as double,ganancia: null == ganancia ? _self.ganancia : ganancia // ignore: cast_nullable_to_non_nullable
+as double,
+  ));
+}
+
+
+}
+
 // dart format on

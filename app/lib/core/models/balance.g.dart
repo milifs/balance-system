@@ -50,3 +50,32 @@ Map<String, dynamic> _$ConsolidadoToJson(_Consolidado instance) =>
       'gastos_total': instance.gastosTotal,
       'ganancia': instance.ganancia,
     };
+
+_ConsolidadoSucursal _$ConsolidadoSucursalFromJson(Map<String, dynamic> json) =>
+    _ConsolidadoSucursal(
+      sucursalId: json['sucursal_id'] as String,
+      sucursal: json['sucursal'] as String,
+      orden: (json['orden'] as num?)?.toInt() ?? 0,
+      periodos: (json['periodos'] as num?)?.toInt() ?? 0,
+      ventasBruto: (json['ventas_bruto'] as num?)?.toDouble() ?? 0,
+      ventasNeto: (json['ventas_neto'] as num?)?.toDouble() ?? 0,
+      comprasTotal: (json['compras_total'] as num?)?.toDouble() ?? 0,
+      cmv: (json['cmv'] as num?)?.toDouble() ?? 0,
+      gastosTotal: (json['gastos_total'] as num?)?.toDouble() ?? 0,
+      ganancia: (json['ganancia'] as num?)?.toDouble() ?? 0,
+    );
+
+Map<String, dynamic> _$ConsolidadoSucursalToJson(
+  _ConsolidadoSucursal instance,
+) => <String, dynamic>{
+  'sucursal_id': instance.sucursalId,
+  'sucursal': instance.sucursal,
+  'orden': instance.orden,
+  'periodos': instance.periodos,
+  'ventas_bruto': instance.ventasBruto,
+  'ventas_neto': instance.ventasNeto,
+  'compras_total': instance.comprasTotal,
+  'cmv': instance.cmv,
+  'gastos_total': instance.gastosTotal,
+  'ganancia': instance.ganancia,
+};

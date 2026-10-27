@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/formatters/formatters.dart';
+import '../../../core/models/balance.dart';
 import '../../../core/models/gasto.dart';
 import '../../../core/models/medio_pago.dart';
 import '../../../core/models/periodo.dart';
@@ -585,6 +586,8 @@ class _ConsolidadoTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final consolidadoAsync =
         ref.watch(consolidadoProvider((ini: ini, fin: fin)));
+    final detalleAsync =
+        ref.watch(consolidadoDetalleProvider((ini: ini, fin: fin)));
 
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -608,8 +611,8 @@ class _ConsolidadoTab extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          'Suma de los períodos CERRADOS de las 4 sucursales cuya fecha de '
-          'fin cae en el rango.',
+          'Suma de los períodos CERRADOS cuya fecha de fin cae en el rango. '
+          'Abajo está qué aportó cada sucursal.',
           style: TextStyle(color: AppColors.grisTexto, fontSize: 13),
         ),
         const SizedBox(height: 16),
@@ -653,6 +656,13 @@ class _ConsolidadoTab extends ConsumerWidget {
             );
           },
         ),
+        const SizedBox(height: 16),
+        detalleAsync.when(
+          loading: () => const SizedBox.shrink(),
+          error: (e, _) => Text('Error al traer el detalle: $e',
+              style: const TextStyle(color: AppColors.rojoNegativo)),
+          data: (filas) => _DetallePorSucursal(filas: filas),
+        ),
       ],
     );
   }
@@ -690,6 +700,75 @@ class _FechaBoton extends StatelessWidget {
             suffixIcon: const Icon(Icons.calendar_today, size: 18),
           ),
           child: Text(Fmt.fecha(fecha)),
+        ),
+      ),
+    );
+  }
+}
+
+/// Qué aportó cada sucursal al consolidado. Está para que una sucursal que no
+/// cerró su período no desaparezca del total en silencio.
+class _DetallePorSucursal extends StatelessWidget {
+  const _DetallePorSucursal({required this.filas});
+
+  final List<ConsolidadoSucursal> filas;
+
+  @override
+  Widget build(BuildContext context) {
+    if (filas.isEmpty) return const SizedBox.shrink();
+    final afuera = filas.where((f) => f.periodos == 0).toList();
+
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('Qué entró en este total',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grisTexto)),
+            const Divider(),
+            for (final f in filas)
+              _FilaConsol(
+                label: f.periodos == 0
+                    ? '${f.sucursal} · sin períodos cerrados en el rango'
+                    : '${f.sucursal} · ${f.periodos} '
+                        '${f.periodos == 1 ? 'período' : 'períodos'}',
+                valor: f.periodos == 0 ? '—' : Fmt.moneda(f.ganancia),
+                color: f.periodos == 0
+                    ? AppColors.rojoNegativo
+                    : (f.ganancia >= 0
+                        ? AppColors.verde
+                        : AppColors.rojoNegativo),
+              ),
+            if (afuera.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.warning_amber_rounded,
+                      size: 18, color: AppColors.rojoNegativo),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      afuera.length == 1
+                          ? '${afuera.first.sucursal} no está en el total: no '
+                              'tiene ningún período cerrado que termine en el '
+                              'rango.'
+                          : '${afuera.map((f) => f.sucursal).join(', ')} no '
+                              'están en el total: no tienen ningún período '
+                              'cerrado que termine en el rango.',
+                      style: const TextStyle(
+                          color: AppColors.rojoNegativo, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
         ),
       ),
     );
