@@ -147,7 +147,20 @@ Calcula el resultado de cada sucursal en el período (rango de fechas). **Todos 
 - Permite consultar cualquier período histórico (rango, ventas, compras, CMV, gastos, rendimiento).
 - Los históricos no se alteran al cambiar precios vigentes (se guarda el snapshot de precios del pesaje).
 
-### 4.6 Módulo de Configuración (solo admin)
+### 4.6 Módulo de Patrimonio (solo admin)
+
+Reemplaza la planilla aparte donde se lleva "qué tengo / qué debo" del negocio.
+
+- **Dos cuadros**: **HABER** (lo que está a favor: efectivo, bancos, stock, cuentas de terceros) y **DEBE** (las deudas: proveedores, tarjetas, préstamos, impuestos).
+- **Texto libre**: los conceptos se escriben a mano. **No se vinculan** con sucursales, períodos, medios de pago ni tipos de gasto, y **no entran en el balance de los períodos**: es una foto aparte.
+- **Único cálculo**: el total de cada columna y el **saldo del negocio a la fecha** (total haber − total deudas). El saldo puede ser negativo.
+- **Fecha**: cada cuadro es la foto a una fecha. Una foto por fecha: volver a guardar la misma fecha reemplaza la anterior.
+- **Pestaña Carga**: se elige la fecha y se escriben las dos columnas. Si esa fecha ya tiene un cuadro, se abre para seguir editándolo.
+- **Pestaña Consulta**: lista de las fechas guardadas con su saldo, para abrir cualquier cuadro anterior.
+- **Exportar a PDF** desde las dos pestañas (Carga exporta lo que está en pantalla; Consulta, lo guardado).
+- **Solo admin**, para leer y para escribir: el cuadro mezcla el negocio con lo personal del dueño (hipoteca, préstamos familiares, tarjetas). No se habilita con un permiso de cajera.
+
+### 4.7 Módulo de Configuración (solo admin)
 
 - **Roles de usuarios:** crear cajeras, asignarlas a una sucursal, definir admin.
 - **Parametrización de ventas:** medios de pago (efectivo, transferencia, crédito, débito) con su **% de descuento/retención** (hoy efectivo 0%, crédito/débito 12%, transferencia a definir).
@@ -198,6 +211,8 @@ Resultado del rinde ($)   = Ingreso del despiece − Costo de la pieza base
 - **gastos** — período, sucursal, fecha, tipo_gasto, monto.
 - **pesajes** — sucursal, fecha, corte, precio_snapshot (precio al momento).
 - **pesaje_items** — pesaje, kg (varios por corte).
+- **patrimonios** — fecha (única). La foto del patrimonio a esa fecha.
+- **patrimonio_items** — patrimonio, lado (haber | debe), orden, concepto (texto libre), monto. Sin relación con sucursal ni período, a propósito.
 
 ---
 

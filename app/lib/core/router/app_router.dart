@@ -11,6 +11,7 @@ import '../../features/balance/presentation/balance_page.dart';
 import '../../features/carga/presentation/carga_page.dart';
 import '../../features/configuracion/presentation/configuracion_page.dart';
 import '../../features/historial/presentation/historial_page.dart';
+import '../../features/patrimonio/presentation/patrimonio_page.dart';
 import '../../features/pesaje/presentation/pesaje_page.dart';
 import '../../features/precios_rinde/presentation/precios_rinde_page.dart';
 import '../../features/soporte/presentation/bandeja_soporte_page.dart';
@@ -98,6 +99,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/pesaje', builder: (_, _) => const PesajePage()),
           GoRoute(path: '/balance', builder: (_, _) => const BalancePage()),
           GoRoute(path: '/historial', builder: (_, _) => const HistorialPage()),
+          GoRoute(path: '/patrimonio', builder: (_, _) => const PatrimonioPage()),
           GoRoute(path: '/configuracion', builder: (_, _) => const ConfiguracionPage()),
           GoRoute(
             path: rutaSoporte,

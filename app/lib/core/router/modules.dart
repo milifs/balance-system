@@ -92,13 +92,24 @@ List<SeccionConfig> seccionesPara(Rol rol, Map<String, bool> permisosCajera) {
       .toList();
 }
 
-/// Los 6 módulos, en orden de navegación.
+/// Los 7 módulos, en orden de navegación.
 const List<ModuloApp> modulos = [
   ModuloApp(ruta: '/carga', label: 'Carga', icono: Icons.edit_note),
   ModuloApp(ruta: '/precios-rinde', label: 'Lista de Precios', icono: Icons.sell),
   ModuloApp(ruta: '/pesaje', label: 'Pesaje', icono: Icons.scale),
   ModuloApp(ruta: '/balance', label: 'Balance', icono: Icons.assessment),
   ModuloApp(ruta: '/historial', label: 'Historial', icono: Icons.history),
+  // Patrimonio es del dueño, no de la operativa: el cuadro mezcla el negocio
+  // con lo personal (hipoteca, préstamos de la familia, tarjetas). Por eso va
+  // como `exclusivoAdmin` y no con un switch en Permisos de la cajera; la RLS
+  // de `patrimonios` pide `is_admin()`, así que apagarlo acá no es solo
+  // sacarlo del menú.
+  ModuloApp(
+    ruta: '/patrimonio',
+    label: 'Patrimonio',
+    icono: Icons.account_balance_wallet,
+    exclusivoAdmin: true,
+  ),
   ModuloApp(
     ruta: rutaConfiguracion,
     label: 'Configuración',

@@ -14,7 +14,7 @@
 ```
 ┌─────────────────────────────────────────────┐
 │              Flutter Web (Dart)              │
-│  UI (6 módulos)  ·  Riverpod  ·  go_router   │
+│  UI (7 módulos)  ·  Riverpod  ·  go_router   │
 │         supabase_flutter (cliente)           │
 └───────────────────────┬─────────────────────┘
                         │  HTTPS / WebSocket
@@ -157,6 +157,25 @@ Seed: Rentas, Contador, Gastos varios, Saldos sueldos, Luz, Agua, Internet.
 #### `pesaje_items` *(ya existe — sin cambios)*
 `pesaje_id`, `kg`, `origen` ("cámara de frío", "batea"...).
 
+#### `patrimonios` *(NUEVO — el cuadro de "qué tengo / qué debo")*
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| **fecha** | date **única** | Una foto por fecha: el cuadro es "el balance a la fecha", no un movimiento. Guardar la misma fecha la reemplaza. |
+| creado_en, actualizado_en | timestamptz | |
+
+#### `patrimonio_items` *(NUEVO — las filas del cuadro)*
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| patrimonio_id | uuid FK | `on delete cascade` |
+| lado | text | `haber` \| `debe` |
+| orden | int | Posición del renglón en su columna: el cuadro se lee renglón contra renglón. |
+| concepto | text | **Texto libre**, sin catálogo ni FK a nada. |
+| monto | numeric(14,2) | **Sin** `check (monto >= 0)`, al revés que ventas/compras/gastos: acá un saldo puede ser legítimamente negativo (una cuenta en descubierto). |
+
+> A propósito **sin `sucursal_id` ni `periodo_id`**: el cuadro no entra en el balance de los períodos ni se reparte por sucursal. Atar los conceptos a catálogos obligaría a dar de alta cada cosa antes de poder escribirla, que es justo lo que hace que la planilla siga viviendo afuera del sistema.
+
 ### 2.3 Vistas y funciones (cálculos)
 
 | Objeto | Tipo | Qué calcula |
@@ -166,6 +185,7 @@ Seed: Rentas, Contador, Gastos varios, Saldos sueldos, Luz, Agua, Internet.
 | `fn_balance_periodo(periodo_id)` | función/RPC | Ventas brutas y netas por medio, total compras, stock inicial y final (del pesaje encadenado), CMV, Σ gastos, Ganancia y Utilidad neta %. |
 | `fn_consolidado_detalle(fecha_ini, fecha_fin)` | función/RPC | Una fila por sucursal activa con lo que aportó al rango y cuántos períodos cerrados fueron; las que no aportaron ninguno vienen con `periodos = 0`. |
 | `fn_consolidado(fecha_ini, fecha_fin)` | función/RPC | Suma `fn_consolidado_detalle`, para que el total y el desglose no cuenten cosas distintas. |
+| `guardar_patrimonio(fecha, items)` | función/RPC | Reemplaza el cuadro de una fecha de una sola vez (upsert de la foto + borrado e inserción de sus filas). Va todo junto a propósito: si el borrado saliera y el insert fallara, la foto quedaría vacía. `security invoker`, así la RLS sigue valiendo. |
 
 **Fórmulas implementadas** (idénticas al §5 del análisis funcional):
 ```
@@ -189,6 +209,7 @@ pct_rinde         = resultado_rinde / costo_pieza_base
 | periodos | lee/escribe **todas las sucursales** | todo |
 | pesajes, pesaje_items | lee/escribe **todas las sucursales** | todo |
 | balances (vistas/RPC), historial | **sin acceso** | acceso total |
+| patrimonios, patrimonio_items | **sin acceso** (ni lectura) | lee + escribe |
 | profiles | ve/edita el propio | ve todos |
 
 Helper `is_admin()` ya existe. También existe `mi_sucursal()` → devuelve `profiles.sucursal_id` del usuario autenticado; hoy **no se usa para restringir** (ver más abajo) pero queda disponible como sucursal por defecto en la UI.
@@ -221,6 +242,7 @@ lib/
     ├── pesaje/                   # Pesaje (pestaña por sucursal)
     ├── balance/                  # Balance por sucursal + consolidado
     ├── historial/                # Historial de balances cerrados
+    ├── patrimonio/               # Cuadro haber/debe a una fecha (Carga + Consulta)
     └── configuracion/            # Roles, medios de pago, gastos, cortes, sucursales, rinde
 ```
 
@@ -231,7 +253,7 @@ Cada feature tiene 3 capas: `data/` (repositorios que hablan con Supabase) · `a
 - `go_router` con un **redirect global** que:
   - Sin sesión → `/login`.
   - Con sesión, según `profiles.rol`:
-    - **admin** → acceso a las 6 rutas.
+    - **admin** → acceso a las 7 rutas.
     - **cajera** → solo `/carga`, `/precios-rinde`, `/pesaje`; cualquier otra ruta redirige a `/carga`.
 - **Layout**: `NavigationRail` (o Drawer en pantallas chicas) que muestra únicamente los módulos permitidos por rol.
 
@@ -244,6 +266,7 @@ Cada feature tiene 3 capas: `data/` (repositorios que hablan con Supabase) · `a
 | Pesaje | Pestaña por sucursal → tabs categoría → grilla de cortes con campos de peso | cortes, precios/costo, pesajes | pesajes, pesaje_items |
 | Balance | Tabla por sucursal (bruto/neto) + consolidado | `fn_balance_periodo`, `fn_consolidado` | cerrar período |
 | Historial | Lista de períodos cerrados + detalle | periodos (cerrados), `fn_balance_periodo` | — |
+| Patrimonio | Pestañas Carga / Consulta, dos columnas de texto libre + PDF | patrimonios, patrimonio_items | `guardar_patrimonio` |
 | Configuración | Sub-secciones (usuarios, ventas, compras, gastos, cortes, sucursales, rinde) | todas las de catálogo | catálogos + costos manuales |
 
 ### 3.4 Rinde en vivo (detalle técnico)

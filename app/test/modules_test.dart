@@ -10,7 +10,7 @@ Map<String, bool> _nada() => {
 
 void main() {
   group('modulosPara', () {
-    test('el admin ve los 6 módulos sin importar los permisos', () {
+    test('el admin ve los 7 módulos sin importar los permisos', () {
       expect(modulosPara(Rol.admin, _nada()), modulos);
     });
 
